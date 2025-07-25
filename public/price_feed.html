@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Price Feed</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h1>Live Stock Prices</h1>
+    <div id="price-div"></div>
+    <form id="price-form">
+        <div class="form-group">
+            <label>Ticker</label>
+            <input type="text" name="ticker" value="AAPL" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Number of Days</label>
+            <input type="number" name="numdays" value="3" class="form-control" />
+        </div>
+        <input type="submit" value="Get Prices" class="btn btn-primary" />
+    </form>
+</div>
+<script src="price_feed.js"></script>
+</body>
+</html>
