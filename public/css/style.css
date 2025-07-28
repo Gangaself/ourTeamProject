@@ -60,6 +60,20 @@ body {
   background-color: #3498db;
 }
 
+/* Logo 样式 */
+.logo-img {
+  height: 50px;
+  width: auto;
+  margin-right: 0px;
+  vertical-align: middle;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 /* 内容区域样式 */
 .content-section {
   background: white;
