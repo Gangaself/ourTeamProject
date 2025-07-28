@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>组合列表</title>
+</head>
+<body>
+  <h2>投资组合列表</h2>
+  <ul id="portfolio-list"></ul>
+
+  <script>
+    async function loadPortfolios() {
+      const res = await fetch('/api/portfolio');
+      const portfolios = await res.json();
+      const list = document.getElementById('portfolio-list');
+      portfolios.forEach(p => {
+        const li = document.createElement('li');
+        li.innerHTML = `<b>${p.name}</b>: ${p.description} 
+        <a href="/portfolio_performance.html?portfolio_id=${p.id}">查看表现</a> | 
+        <a href="/portfolio_assets.html?portfolio_id=${p.id}">查看资产</a>`;
+        list.appendChild(li);
+      });
+    }
+    loadPortfolios();
+  </script>
+</body>
+</html>
