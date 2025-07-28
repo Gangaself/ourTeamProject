@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产管理系统</title>
+    <style>
+       
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+        
+        .sidebar {
+            width: 220px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            height: 100vh;
+            position: fixed;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #34495e;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .menu-item:hover {
+            background-color: #34495e;
+        }
+        
+        .menu-item.active {
+            background-color: #3498db;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 20px;
+        }
+        
+        .search-bar {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .search-title {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .search-fields {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .search-field {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .search-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .search-field input, .search-field select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .search-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .data-table {
+            width: 100%;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: #f9f9f9;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .profit {
+            color: #27ae60;
+        }
+        
+        .loss {
+            color: #e74c3c;
+        }
+        
+        .neutral {
+            color: #7f8c8d;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .pagination button.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .portfolio-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            background-color: #e0e0e0;
+            color: #333;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .STOCK {
+            background-color: #d4e6f1;
+            color: #2980b9;
+        }
+        
+        .BOND {
+            background-color: #d5f5e3;
+            color: #27ae60;
+        }
+        
+        .ETF {
+            background-color: #fdebd0;
+            color: #d35400;
+        }
+        
+        .CASH {
+            background-color: #e8daef;
+            color: #8e44ad;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧菜单栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>资产管理</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-item active">所有资产</li>
+         
+         
+        </ul>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+            <div class="search-title">资产搜索</div>
+            <div class="search-fields">
+                <div class="search-field">
+                    <label for="search-id">资产ID</label>
+                    <input type="text" id="search-id" placeholder="输入资产ID">
+                </div>
+                <div class="search-field">
+                    <label for="search-name">资产名称</label>
+                    <input type="text" id="search-name" placeholder="输入资产名称或代码">
+                </div>
+                <div class="search-field">
+                    <label for="search-type">资产类型</label>
+                    <select id="search-type">
+                        <option value="">所有类型</option>
+                        <option value="STOCK">STOCK</option>
+                        <option value="BOND">BOND</option>
+                        <option value="ETF">ETF</option>
+                        <option value="CASH">CASH</option>
+                    </select>
+                </div>
+                <div class="search-field">
+                    <label for="search-portfolio">投资组合</label>
+                    <select id="search-portfolio">
+                        <option value="">所有组合</option>
+                       
+                    </select>
+                </div>
+                <div class="search-field">
+                    <label for="search-date">购买日期</label>
+                    <input type="date" id="search-date">
+                </div>
+            </div>
+            <div class="search-actions">
+                <button class="btn btn-secondary">重置</button>
+                <button class="btn btn-primary">搜索</button>
+            </div>
+        </div>
+        
+        <!-- 数据表格 -->
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>投资组合</th>
+                        <th>类型</th>
+                        <th>代码</th>
+                        <th>名称</th>
+                        <th>数量</th>
+                        <th>购买价格</th>
+                        <th>当前价格</th>
+                        <th>市值</th>
+                        <th>盈亏</th>
+                        <th>购买日期</th>
+                        <th>货币</th>
+                    </tr>
+                </thead>
+                <tbody id="asset-data">
+                    <tr>
+                        <td colspan="12" class="loading">加载中...</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination">
+                <button>&laquo;</button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>&raquo;</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API基础地址
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        // 渲染表格数据
+        function renderTable(data) {
+            const tableBody = document.getElementById('asset-data');
+            tableBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="12" class="loading">没有找到匹配的资产数据</td></tr>';
+                return;
+            }
+            
+            data.forEach(asset => {
+                // 转换数值类型（从数据库获取的可能是字符串）
+                const quantity = parseFloat(asset.quantity);
+                const purchasePrice = parseFloat(asset.purchase_price);
+                const currentPrice = parseFloat(asset.current_price);
+                
+                const marketValue = quantity * currentPrice;
+                const costBasis = quantity * purchasePrice;
+                const profitLoss = marketValue - costBasis;
+                const profitLossPercent = (profitLoss / costBasis * 100).toFixed(2);
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${asset.id}</td>
+                    <td><span class="portfolio-badge">组合 ${asset.portfolio_id}</span></td>
+                    <td><span class="type-badge ${asset.type}">${asset.type}</span></td>
+                    <td>${asset.symbol}</td>
+                    <td>${asset.name}</td>
+                    <td>${quantity.toLocaleString()}</td>
+                    <td>${purchasePrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td>${currentPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td>${marketValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="${profitLoss > 0 ? 'profit' : profitLoss < 0 ? 'loss' : 'neutral'}">
+                        ${profitLoss > 0 ? '+' : ''}${profitLoss.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${profitLossPercent}%)
+                    </td>
+                    <td>${asset.purchase_date}</td>
+                    <td>${asset.currency}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 从API获取资产数据
+        async function fetchAssets(filters = {}) {
+            try {
+                // 显示加载状态
+                const tableBody = document.getElementById('asset-data');
+                tableBody.innerHTML = '<tr><td colspan="12" class="loading">加载中...</td></tr>';
+                
+                // 构建查询参数
+                const params = new URLSearchParams();
+                Object.entries(filters).forEach(([key, value]) => {
+                    if (value) params.append(key, value);
+                });
+                
+                const url = `${API_BASE_URL}/assets/all${params.toString() ? '?' + params.toString() : ''}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('获取资产数据失败');
+                }
+                
+                const data = await response.json();
+                renderTable(data);
+            } catch (error) {
+                console.error('获取资产数据时出错:', error);
+                const tableBody = document.getElementById('asset-data');
+                tableBody.innerHTML = '<tr><td colspan="12" class="loading">加载失败，请重试</td></tr>';
+            }
+        }
+
+        // 初始加载所有数据
+        fetchAssets();
+
+        // 搜索功能
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            const filters = {
+                id: document.getElementById('search-id').value,
+                name: document.getElementById('search-name').value,
+                type: document.getElementById('search-type').value,
+                portfolio: document.getElementById('search-portfolio').value,
+                date: document.getElementById('search-date').value
+            };
+            
+            fetchAssets(filters);
+        });
+
+        // 重置功能
+        document.querySelector('.btn-secondary').addEventListener('click', function() {
+            document.getElementById('search-id').value = '';
+            document.getElementById('search-name').value = '';
+            document.getElementById('search-type').value = '';
+            document.getElementById('search-portfolio').value = '';
+            document.getElementById('search-date').value = '';
+            fetchAssets();
+        });
+
+        // 菜单项点击事件
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // 根据菜单项筛选数据
+                const menuText = this.textContent.trim();
+                if (menuText === '所有资产') {
+                    fetchAssets();
+                } else if (menuText.startsWith('投资组合')) {
+                    const portfolioId = menuText.replace('投资组合', '').trim();
+                    fetchAssets({ portfolio: portfolioId });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
