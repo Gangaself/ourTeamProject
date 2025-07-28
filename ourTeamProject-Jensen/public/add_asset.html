@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>添加资产</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h2>添加资产到组合</h2>
+  <form id="asset-form">
+    <label>组合ID: <input type="number" name="portfolio_id" required /></label><br>
+    <label>资产类型: 
+      <select name="type">
+        <option>STOCK</option><option>BOND</option><option>ETF</option><option>CASH</option><option>OTHER</option>
+      </select>
+    </label><br>
+    <label>股票代码(symbol): <input type="text" id="symbol" name="symbol" required /></label>
+    <button type="button" onclick="fetchPrice()">获取当前价格</button><br>
+    <label>资产名称: <input type="text" name="name" /></label><br>
+    <label>当前价格: <input type="text" id="current_price" name="current_price" readonly /></label><br>
+    <label>买入价格: <input type="number" name="purchase_price" step="0.01" /></label><br>
+    <label>数量: <input type="number" name="quantity" step="0.01" required /></label><br>
+    <label>买入日期: <input type="date" name="purchase_date" /></label><br>
+    <button type="submit">提交</button>
+  </form>
+
+  <script>
+    const priceApi = 'https://jqjfct0r76.execute-api.us-east-1.amazonaws.com/default/PythonPandas';
+    
+    async function fetchPrice() {
+      const symbol = document.getElementById('symbol').value;
+      const res = await fetch(`${priceApi}?ticker=${symbol}&num_days=1`);
+      const data = await res.json();
+      const lastPrice = data.price_data[data.price_data.length - 1][1];
+      document.getElementById('current_price').value = lastPrice;
+    }
+
+    document.getElementById('asset-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form).entries());
+      await fetch('/api/assets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      alert('资产添加成功');
+      form.reset();
+    });
+  </script>
+</body>
+</html>
