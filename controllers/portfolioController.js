@@ -1,4 +1,4 @@
-import { getAllPortfolios, createPortfolio, deletePortfolio } from '../services/portfolioService.js';
+import { getAllPortfolios, createPortfolio, deletePortfolio,updatePortfolio } from '../services/portfolioService.js';
 
 const listPortfolios = async (req, res) => {
     const data = await getAllPortfolios();
@@ -15,5 +15,11 @@ const removePortfolio = async (req, res) => {
     await deletePortfolio(id);
     res.json({ message: 'Portfolio deleted' });
 };
+const upPortfolio = async (req, res) => {
+    const id = req.params.id;
+    const result = await updatePortfolio(id, req.body);
+    res.json({ message: 'Portfolio updated', affectedRows: result.affectedRows });
+};
 
-export { listPortfolios, addPortfolio, removePortfolio };
+
+export { listPortfolios, addPortfolio, removePortfolio,upPortfolio };

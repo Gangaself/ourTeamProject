@@ -19,4 +19,12 @@ const deletePortfolio = async (id) => {
     return result;
 };
 
-export { getAllPortfolios, createPortfolio, deletePortfolio };
+const updatePortfolio = async (id, data) => {
+    const { name, description } = data;
+    const [result] = await connection.query(
+        'UPDATE portfolio SET name = ?, description = ? WHERE id = ?',
+        [name, description, id]
+    );
+    return result;
+}
+export { getAllPortfolios, createPortfolio, deletePortfolio,updatePortfolio};

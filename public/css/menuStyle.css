@@ -16,10 +16,10 @@ body {
 
 /* 导航菜单样式 */
 .navbar {
-  background-color: #2c3e50;
-  color: white;
+  background-color: #1a3a6e; /* 深蓝色背景 */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* 加深阴影以配合深色背景 */
+  color: #ffffff; /* 白色文字 */
   padding: 15px 0;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .navbar .container {
@@ -69,6 +69,7 @@ body {
 }
 
 .nav-logo {
+  color: #ffffff;
   display: flex;
   align-items: center;
   gap: 10px;
