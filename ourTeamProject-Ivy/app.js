@@ -3,6 +3,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import portfolioRoutes from './routes/portfolioRoutes.js';
 import assetRoutes from './routes/assetRoutes.js';
+import marketRoutes from './routes/marketRoutes.js';
 import performanceRoutes from './routes/performanceRoutes.js';
 
 
@@ -19,7 +20,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/assets', assetRoutes);
+app.use('/api/markets', marketRoutes);
 app.use('/api/portfolio-performance',performanceRoutes);
+
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));

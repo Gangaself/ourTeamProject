@@ -195,3 +195,54 @@ SELECT
   ROUND(94500 * POWER(1.0053, DAY(date) - 3) * (1 + (RAND() * 0.01 - 0.005)), 4) AS total_value,
   ROUND(0.0053 + (RAND() * 0.01 - 0.005), 4) AS daily_return
 FROM dates;
+
+
+
+
+CREATE TABLE IF NOT EXISTS market (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '市场ID，主键，自动递增',
+    type ENUM('STOCK','BOND','ETF','CASH','OTHER') NOT NULL COMMENT '类型：股票/债券/ETF/现金/其他',
+    symbol VARCHAR(20) NOT NULL COMMENT '代码（如股票代码AAPL）',
+    name VARCHAR(100) COMMENT '名称',
+    current_price DECIMAL(18,4) COMMENT '当前价格',
+    currency VARCHAR(3) DEFAULT 'USD' COMMENT '类型，默认USD',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    INDEX idx_symbol (symbol) COMMENT '代码索引'
+) COMMENT '市场明细表';
+
+-- 股票类型数据
+INSERT INTO market (type, symbol, name, current_price, currency) VALUES
+('STOCK', 'AAPL', 'Apple Inc.', 175.50, 'USD'),
+('STOCK', 'MSFT', 'Microsoft Corporation', 330.25, 'USD'),
+('STOCK', 'AMZN', 'Amazon.com Inc.', 145.75, 'USD'),
+('STOCK', 'TSLA', 'Tesla Inc.', 700.80, 'USD'),
+('STOCK', 'GOOGL', 'Alphabet Inc.', 135.40, 'USD'),
+('STOCK', 'BABA', 'Alibaba Group', 85.60, 'USD'),
+('STOCK', 'TSM', 'Taiwan Semiconductor', 95.45, 'USD'),
+('STOCK', '005930', 'Samsung Electronics', 71500.00, 'KRW'),
+('STOCK', '000858', 'Wuliangye', 165.30, 'CNY');
+
+-- 债券类型数据
+INSERT INTO market (type, symbol, name, current_price, currency) VALUES
+('BOND', 'US10Y', 'US 10 Year Treasury', 98.75, 'USD'),
+('BOND', 'US2Y', 'US 2 Year Treasury', 99.50, 'USD'),
+('BOND', 'DE10Y', 'Germany 10 Year Bund', 102.30, 'EUR'),
+('BOND', 'JP10Y', 'Japan 10 Year JGB', 99.80, 'JPY');
+
+-- ETF类型数据
+INSERT INTO market (type, symbol, name, current_price, currency) VALUES
+('ETF', 'SPY', 'SPDR S&P 500 ETF', 415.20, 'USD'),
+('ETF', 'QQQ', 'Invesco QQQ Trust', 350.75, 'USD'),
+('ETF', 'VTI', 'Vanguard Total Stock Market', 215.60, 'USD'),
+('ETF', 'EEM', 'iShares MSCI Emerging Markets', 40.25, 'USD'),
+('ETF', 'GLD', 'SPDR Gold Shares', 180.50, 'USD');
+
+-- 现金和其他类型数据
+INSERT INTO market (type, symbol, name, current_price, currency) VALUES
+('CASH', 'USD', 'US Dollar', 1.0000, 'USD'),
+('CASH', 'EUR', 'Euro', 0.9200, 'USD'),
+('CASH', 'JPY', 'Japanese Yen', 0.0075, 'USD'),
+('CASH', 'CNY', 'Chinese Yuan', 0.1450, 'USD'),
+('OTHER', 'BTC', 'Bitcoin', 42000.00, 'USD'),
+('OTHER', 'ETH', 'Ethereum', 2250.50, 'USD'),
+('OTHER', 'XAU', 'Gold Spot', 1950.75, 'USD');
