@@ -39,7 +39,7 @@
         const url = `${priceApi}?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`;
         const res = await fetch(url);
         const data = await res.json();
-
+        
         if (data.Note) {
           alert("API调用频率受限，请稍后再试。");
           return;

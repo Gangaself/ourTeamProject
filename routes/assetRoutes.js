@@ -23,7 +23,7 @@ router.delete('/:id', async (req, res) => {
 router.get('/', getAssetsByPortfolioId);
 
 // 获取所有资产数据
-router.get('/all', async (req, res) => {
+router.get('/all', async (req, res) => {         
   try {
     let query = 'SELECT * FROM asset';
     const params = [];
