@@ -19,7 +19,7 @@ function showAddForm() {
     const desc = document.getElementById('add-desc').value.trim();
     
     if (!name) {
-      alert('组合名称不能为空');
+      alert('Portfolio name cannot be empty');
       document.getElementById('add-name').focus();
       return;
     }
@@ -37,16 +37,16 @@ function showAddForm() {
       });
       
       if (response.ok) {
-        alert('组合添加成功');
+        alert('Portfolio added successfully');
         hideAddForm();
         loadPortfolios();
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || '添加失败');
+        throw new Error(errorData.message || 'Add failed');
       }
     } catch (error) {
-      console.error('添加错误:', error);
-      alert('添加组合时出错: ' + error.message);
+      console.error('Add Error:', error);
+      alert('Error adding portfolio:' + error.message);
     }
   }
   
@@ -54,7 +54,7 @@ function showAddForm() {
   async function loadPortfolios() {
     try {
       const res = await fetch('/api/portfolio');
-      if (!res.ok) throw new Error('获取数据失败');
+      if (!res.ok) throw new Error('Failed to obtain data');
       const portfolios = await res.json();
       const list = document.getElementById('portfolio-list');
       list.innerHTML = '';
@@ -69,33 +69,33 @@ function showAddForm() {
           </div>
           <div class="portfolio-actions">
             <a href="/portfolio_performance.html?portfolio_id=${p.id}" class="action-link">
-              <i class="fas fa-chart-line"></i> 查看表现
+              <i class="fas fa-chart-line"></i> View portfolio performance
             </a>
             <a href="/portfolio_assets.html?portfolio_id=${p.id}" class="action-link">
-              <i class="fas fa-coins"></i> 查看资产
+              <i class="fas fa-coins"></i> View Assets
             </a>
             <a href="#" onclick="showEditForm(${p.id}, '${escapeHtml(p.name)}', '${escapeHtml(p.description)}', this); return false;" class="action-link">
-              <i class="fas fa-edit"></i> 修改
+              <i class="fas fa-edit"></i> Modify portfolio
             </a>
             <a href="#" onclick="handleDeletePortfolio(${p.id}, this); return false;" class="action-link" style="color: var(--danger-color)">
-              <i class="fas fa-trash-alt"></i> 删除
+              <i class="fas fa-trash-alt"></i> Delete portfolio
             </a>
           </div>
           <div id="edit-form-${p.id}" class="form-container" style="display: none; width: 100%; margin-top: 15px;">
             <div class="form-row">
-              <label><i class="fas fa-tag"></i> 名字</label>
-              <input type="text" id="edit-name-${p.id}" value="${escapeHtml(p.name)}" placeholder="组合名称">
+              <label><i class="fas fa-tag"></i> Portfolio Name</label>
+              <input type="text" id="edit-name-${p.id}" value="${escapeHtml(p.name)}" placeholder="Please enter a portfolio name">
             </div>
             <div class="form-row">
-              <label><i class="fas fa-align-left"></i> 描述</label>
-              <input type="text" id="edit-desc-${p.id}" value="${escapeHtml(p.description)}" placeholder="组合描述">
+              <label><i class="fas fa-align-left"></i> Portfolio Description</label>
+              <input type="text" id="edit-desc-${p.id}" value="${escapeHtml(p.description)}" placeholder="Please enter a portfolio description">
             </div>
             <div class="form-row">
               <button class="btn btn-success" onclick="handleUpdatePortfolio(${p.id})">
-                <i class="fas fa-check"></i> 保存
+                <i class="fas fa-check"></i> Submit
               </button>
               <button class="btn btn-danger" onclick="hideEditForm(${p.id})">
-                <i class="fas fa-times"></i> 取消
+                <i class="fas fa-times"></i> Cancel
               </button>
             </div>
           </div>
@@ -107,7 +107,7 @@ function showAddForm() {
       document.getElementById('portfolio-list').innerHTML = `
         <li class="portfolio-item">
           <div style="color: var(--danger-color); text-align: center; width: 100%;">
-            <i class="fas fa-exclamation-triangle"></i> 加载组合列表失败，请刷新重试
+            <i class="fas fa-exclamation-triangle"></i> Failed to load portfolio list, please refresh and try again
           </div>
         </li>
       `;
@@ -136,7 +136,7 @@ function showAddForm() {
     const newDesc = document.getElementById(`edit-desc-${id}`).value.trim();
     
     if (!newName) {
-      alert('组合名称不能为空');
+      alert('Portfolio name cannot be empty');
       return;
     }
     
@@ -153,22 +153,22 @@ function showAddForm() {
       });
       
       if (response.ok) {
-        alert('组合更新成功');
+        alert('Portfolio update successful');
         hideEditForm(id);
         loadPortfolios();
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || '更新失败');
+        throw new Error(errorData.message || 'Update failed');
       }
     } catch (error) {
-      console.error('更新错误:', error);
-      alert('更新组合时出错: ' + error.message);
+      console.error('Update Error:', error);
+      alert('Error updating portfolio: ' + error.message);
     }
   }
   
   // 删除组合
   async function handleDeletePortfolio(id, element) {
-    if (!confirm('确定要删除这个组合吗？')) return;
+    if (!confirm('Are you sure you want to delete this portfolio?')) return;
     
     try {
       const response = await fetch(`/api/portfolio/${id}`, {
@@ -177,14 +177,14 @@ function showAddForm() {
       
       if (response.ok) {
         element.closest('.portfolio-item').remove();
-        alert('组合删除成功');
+        alert('Portfolio deleted successfully');
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || '删除失败');
+        throw new Error(errorData.message || 'Deletion failed');
       }
     } catch (error) {
-      console.error('删除错误:', error);
-      alert('删除组合时出错: ' + error.message);
+      console.error('Deleting Errors:', error);
+      alert('Error deleting portfolio: ' + error.message);
     }
   }
   

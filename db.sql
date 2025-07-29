@@ -106,3 +106,36 @@ INSERT INTO portfolio_performance (portfolio_id, record_date, total_value, daily
 (5, '2023-04-01', 95000, 0.0120),
 (5, '2023-04-02', 94000, -0.0105),
 (5, '2023-04-03', 94500, 0.0053);
+
+
+-- 创建用户表，用于存储用户账户信息
+CREATE TABLE user (
+    -- 用户ID，自增主键，唯一标识每个用户
+    user_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '用户唯一标识ID',
+    
+    -- 用户名，要求唯一且不能为空
+    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名，用于登录和显示',
+    
+    -- 电子邮箱，要求唯一且符合邮箱格式
+    email VARCHAR(100) NOT NULL UNIQUE COMMENT '用户电子邮箱(唯一)',
+    
+    -- 初始金额，记录用户开户时的初始资金
+    initial_amount DECIMAL(15, 2) NOT NULL DEFAULT 0.00 COMMENT '用户初始金额',
+    
+    -- 当前余额，必须大于等于0，确保不会出现负余额
+    balance DECIMAL(15, 2) NOT NULL DEFAULT 0.00 CHECK (balance >= 0) COMMENT '当前账户余额(必须≥0)',
+    
+    -- 货币类型，默认为美元(USD)
+    currency VARCHAR(3) DEFAULT 'USD' COMMENT '货币类型(如USD,CNY等)',
+    
+    -- 记录创建时间，自动设置为当前时间戳
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '账户创建时间',
+    
+    -- 记录更新时间，自动更新为修改时的时间戳
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间'
+    
+) COMMENT='用户账户信息表';
+
+INSERT INTO user (username, email, initial_amount, balance)
+VALUES ('john_doe', 'john.doe@example.com', 10000.00, 10000.00);
+

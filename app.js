@@ -7,6 +7,9 @@ import performanceRoutes from './routes/performanceRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import userRoutes from './routes/userRoutes.js';
+
+
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -20,6 +23,8 @@ app.use('/js', express.static(path.join(__dirname, 'public/js')));
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/portfolio-performance', performanceRoutes);
+
+app.use('/api/user', userRoutes);
 
 // 所有路由都返回index.html (支持前端路由)
 app.get('*', (req, res) => {

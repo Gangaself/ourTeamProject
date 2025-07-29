@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>组合表现图表</title>
+  <title>Portfolio Performance Chart</title>
   <!-- todo style -->
   <link rel="stylesheet" href="./css/performStyle.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -14,13 +14,13 @@
 <body>
   <div class="container">
     <div class="chart-header">
-      <h2 class="chart-title"><i class="fas fa-chart-line"></i> 组合表现</h2>
+      <h2 class="chart-title"><i class="fas fa-chart-line"></i> Portfolio Performance</h2>
       <div class="chart-actions">
         <!-- <a href="/portfolio_assets.html?portfolio_id=${new URLSearchParams(window.location.search).get('portfolio_id')}" class="btn btn-primary">
           <i class="fas fa-coins"></i> 查看资产
         </a> -->
         <a href="javascript:window.history.back()" class="btn">
-          <i class="fas fa-arrow-left"></i> 返回
+          <i class="fas fa-arrow-left"></i> return
         </a>
       </div>
     </div>
@@ -56,7 +56,7 @@
           data: {
             labels,
             datasets: [{
-              label: '组合总价值',
+              label: 'Total portfolio value',
               data: values,
               borderColor: 'var(--primary-color)',
               backgroundColor: 'rgba(67, 97, 238, 0.1)',
@@ -78,7 +78,7 @@
               tooltip: {
                 callbacks: {
                   label: function(context) {
-                    return `价值: ${context.raw.toLocaleString()}元`;
+                    return `value: ${context.raw.toLocaleString()} Dollars`;
                   }
                 }
               }
@@ -97,7 +97,7 @@
                 beginAtZero: false,
                 ticks: {
                   callback: function(value) {
-                    return value.toLocaleString() + '元';
+                    return value.toLocaleString() + ' Dollars';
                   }
                 },
                 grid: {
@@ -108,10 +108,10 @@
           }
         });
       } catch (error) {
-        console.error('图表渲染错误:', error);
+        console.error('Chart rendering errors:', error);
         document.querySelector('.chart-container').innerHTML = `
           <div style="color: var(--danger-color); text-align: center; padding: 20px;">
-            <i class="fas fa-exclamation-triangle"></i> 加载图表数据失败，请刷新重试
+            <i class="fas fa-exclamation-triangle"></i> Failed to load chart data, please refresh and try again
           </div>
         `;
       }
