@@ -388,7 +388,7 @@
                     if (value) params.append(key, value);
                 });
                 
-                const url = `${API_BASE_URL}/assets${params.toString() ? '?' + params.toString() : ''}`;
+                const url = `${API_BASE_URL}/assets/all${params.toString() ? '?' + params.toString() : ''}`;
                 const response = await fetch(url);
                 
                 if (!response.ok) {

@@ -6,7 +6,7 @@ export async function addAsset(data) {
     purchase_price, current_price, purchase_date
   } = data;
   
-
+  
   const [result] = await connection.query(
     `INSERT INTO asset (portfolio_id, type, symbol, name, quantity, purchase_price, current_price, purchase_date)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
