@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<!-- 文档类型声明，HTML5标准 / Document type declaration, HTML5 standard -->
+<html lang="zh-CN">
+<!-- 设置文档语言为简体中文 / Set document language to Simplified Chinese -->
+<head>
+  <!-- 文档头部开始 / Start of document head -->
+  <meta charset="UTF-8">
+  <!-- 字符编码设置为UTF-8 / Character encoding set to UTF-8 -->
+  <title>组合资产详情</title>
+  <!-- 页面标题 / Page title -->
+  
+  <style>
+    /* 全局样式 / Global styles */
+    body {
+      font-family: Arial, sans-serif;  /* 设置默认字体 / Set default font */
+      max-width: 1200px;  /* 最大宽度限制 / Maximum width constraint */
+      margin: 0 auto;  /* 居中显示 / Center alignment */
+      padding: 20px;  /* 内边距 / Padding */
+    }
+    
+    /* 图表容器样式 / Chart container styles */
+    .charts-container {
+      display: flex;  /* 弹性布局 / Flexbox layout */
+      flex-wrap: wrap;  /* 允许换行 / Allow wrapping */
+      gap: 20px;  /* 元素间距 / Gap between elements */
+      margin-top: 30px;  /* 顶部外边距 / Top margin */
+    }
+    
+    /* 单个图表容器 / Individual chart container */
+    .chart-container {
+      flex: 1;  /* 弹性扩展 / Flexible growth */
+      min-width: 300px;  /* 最小宽度 / Minimum width */
+      border: 1px solid #eee;  /* 边框样式 / Border style */
+      padding: 20px;  /* 内边距 / Padding */
+      border-radius: 8px;  /* 圆角边框 / Rounded corners */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);  /* 阴影效果 / Shadow effect */
+    }
+    
+    /* 图表画布样式 / Chart canvas styles */
+    .chart-container canvas {
+      width: 100% !important;  /* 宽度100% / Full width */
+      height: 250px !important;  /* 固定高度250px / Fixed height */
+    }
+    
+    /* 资产列表样式 / Asset list styles */
+    #asset-list {
+      list-style: none;  /* 无列表标记 / No list markers */
+      padding: 0;  /* 无内边距 / No padding */
+    }
+    
+    /* 单个资产项样式 / Individual asset item style */
+    #asset-list li {
+      padding: 15px;  /* 内边距 / Padding */
+      margin-bottom: 10px;  /* 底部外边距 / Bottom margin */
+      background: #f9f9f9;  /* 背景色 / Background color */
+      border-radius: 6px;  /* 圆角 / Rounded corners */
+      border-left: 4px solid #4a90e2;  /* 左侧边框 / Left border */
+    }
+    
+    /* 盈利文本样式 / Profit text style */
+    .positive { color: #4CAF50; }  /* 绿色 / Green color */
+    
+    /* 亏损文本样式 / Loss text style */
+    .negative { color: #F44336; }  /* 红色 / Red color */
+  </style>
+  
+  <!-- 引入Chart.js库 / Include Chart.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!-- 主标题 / Main heading -->
+  <h2>投资组合资产</h2>
+  
+  <!-- 资产列表容器 / Asset list container -->
+  <ul id="asset-list"></ul>
+  
+  <!-- 图表容器 / Charts container -->
+  <div class="charts-container">
+    <!-- 饼图容器 / Pie chart container -->
+    <div class="chart-container">
+      <h3>资产占比分布</h3>
+      <canvas id="asset-pie-chart"></canvas>
+    </div>
+    
+    <!-- 对比图容器 / Comparison chart container -->
+    <div class="chart-container">
+      <h3>资产价值对比</h3>
+      <canvas id="asset-comparison-chart"></canvas>
+    </div>
+    
+    <!-- 类型图容器 / Type distribution container -->
+    <div class="chart-container">
+      <h3>资产类型分布</h3>
+      <canvas id="asset-type-chart"></canvas>
+    </div>
+  </div>
+
+  <script>
+    // 主数据加载函数 / Main data loading function
+    async function loadAssets() {
+      // 获取URL参数 / Get URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const portfolioId = urlParams.get('portfolio_id');
+
+      // 检查portfolio_id是否存在 / Check if portfolio_id exists
+      if (!portfolioId) {
+        document.body.innerHTML = '<p>未提供 portfolio_id 参数。</p>';
+        return;
+      }
+
+      try {
+        // 获取资产数据 / Fetch asset data
+        const res = await fetch(`/api/assets?portfolio_id=${portfolioId}`);
+        const assets = await res.json();
+        
+        // 渲染资产列表和图表 / Render asset list and charts
+        renderAssetList(assets);
+        renderAllCharts(assets);
+      } catch (error) {
+        // 错误处理 / Error handling
+        console.error('数据加载失败:', error);
+        document.getElementById('asset-list').innerHTML = 
+          '<li>数据加载失败，请刷新重试</li>';
+      }
+    }
+
+    // 渲染资产列表函数 / Asset list rendering function
+    function renderAssetList(assets) {
+      const list = document.getElementById('asset-list');
+      
+      // 空数据检查 / Empty data check
+      if (!assets || assets.length === 0) {
+        list.innerHTML = '<li>无资产记录。</li>';
+        return;
+      }
+
+      // 清空列表 / Clear list
+      list.innerHTML = '';
+      
+      // 遍历资产数据 / Iterate through assets
+      assets.forEach(asset => {
+        // 计算当前价值和购买价值 / Calculate current and purchase values
+        const currentValue = (asset.current_price || asset.purchase_price) * asset.quantity;
+        const purchaseValue = asset.purchase_price * asset.quantity;
+        
+        // 计算盈亏 / Calculate profit/loss
+        const profit = currentValue - purchaseValue;
+        const profitClass = profit >= 0 ? 'positive' : 'negative';
+        const profitText = profit >= 0 ? 
+          `+¥${Math.abs(profit).toLocaleString()}` : 
+          `-¥${Math.abs(profit).toLocaleString()}`;
+        const ratio = (Math.abs(profit) / purchaseValue * 100).toFixed(2);
+
+        // 创建列表项 / Create list item
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <b>${asset.name}</b> (${asset.symbol}) - ${asset.type}<br>
+          当前价值: ¥${currentValue.toLocaleString()} | 
+          投入成本: ¥${purchaseValue.toLocaleString()}<br>
+          盈亏: <span class="${profitClass}">${profitText} (${ratio}%)</span><br>
+          数量: ${asset.quantity} | 购买日期: ${asset.purchase_date}
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    // 渲染所有图表函数 / Render all charts function
+    function renderAllCharts(assets) {
+      // 空数据检查 / Empty data check
+      if (!assets || assets.length === 0) return;
+      
+      // 绘制三个图表 / Draw three charts
+      drawPieChart(assets);
+      drawComparisonChart(assets);
+      drawTypeChart(assets);
+    }
+
+    // 1. 饼图绘制函数 / Pie chart drawing function
+    function drawPieChart(assets) {
+      // 获取画布上下文 / Get canvas context
+      const ctx = document.getElementById('asset-pie-chart').getContext('2d');
+      
+      // 计算资产价值 / Calculate asset values
+      const assetValues = assets.map(asset => ({
+        name: asset.name,
+        value: (asset.current_price || asset.purchase_price) * asset.quantity
+      }));
+
+      // 创建饼图实例 / Create pie chart instance
+      new Chart(ctx, {
+        type: 'pie',  // 图表类型 / Chart type
+        data: {
+          labels: assetValues.map(item => item.name),  // 标签 / Labels
+          datasets: [{
+            data: assetValues.map(item => item.value),  // 数据 / Data
+            backgroundColor: [  // 颜色设置 / Color settings
+              'rgba(255, 99, 132, 0.7)',
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(153, 102, 255, 0.7)'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,  // 响应式设计 / Responsive design
+          plugins: {
+            tooltip: {  // 工具提示配置 / Tooltip configuration
+              callbacks: {
+                label: (ctx) => {  // 标签回调 / Label callback
+                  const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((ctx.raw / total) * 100);
+                  return `${ctx.label}: ¥${ctx.raw.toLocaleString()} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 2. 对比图绘制函数 / Comparison chart drawing function
+    function drawComparisonChart(assets) {
+      // 获取画布上下文 / Get canvas context
+      const ctx = document.getElementById('asset-comparison-chart').getContext('2d');
+      
+      // 准备标签和数据 / Prepare labels and data
+      const labels = assets.map(asset => `${asset.name} (${asset.symbol})`);
+      const purchaseData = assets.map(asset => asset.purchase_price * asset.quantity);
+      const currentData = assets.map(asset => 
+        (asset.current_price || asset.purchase_price) * asset.quantity
+      );
+
+      // 创建柱状图实例 / Create bar chart instance
+      new Chart(ctx, {
+        type: 'bar',  // 图表类型 / Chart type
+        data: {
+          labels: labels,  // 标签 / Labels
+          datasets: [
+            {  // 投入成本数据集 / Purchase cost dataset
+              label: '投入成本',
+              data: purchaseData,
+              backgroundColor: 'rgba(255, 99, 132, 0.7)'
+            },
+            {  // 当前价值数据集 / Current value dataset
+              label: '当前价值',
+              data: currentData,
+              backgroundColor: 'rgba(75, 192, 192, 0.7)'
+            }
+          ]
+        },
+        options: {
+          responsive: true,  // 响应式设计 / Responsive design
+          scales: {
+            y: {  // Y轴配置 / Y-axis configuration
+              title: { display: true, text: '价值 (¥)' },  // 标题 / Title
+              ticks: { callback: v => '¥' + v.toLocaleString() }  // 刻度格式化 / Tick formatting
+            }
+          },
+          plugins: {
+            tooltip: {  // 工具提示配置 / Tooltip configuration
+              callbacks: {
+                label: (ctx) => {  // 标签回调 / Label callback
+                  const value = ctx.raw;
+                  const isCurrent = ctx.datasetIndex === 1;
+                  const purchaseValue = purchaseData[ctx.dataIndex];
+                  const diff = isCurrent ? value - purchaseValue : 0;
+                  const ratio = isCurrent ? (diff / purchaseValue * 100).toFixed(2) : 0;
+                  
+                  return [
+                    `${ctx.dataset.label}: ¥${value.toLocaleString()}`,
+                    isCurrent && `盈亏: ¥${diff.toLocaleString()} (${ratio}%)`
+                  ].filter(Boolean);
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 3. 类型分布图绘制函数 / Type distribution chart drawing function
+    function drawTypeChart(assets) {
+      // 获取画布上下文 / Get canvas context
+      const ctx = document.getElementById('asset-type-chart').getContext('2d');
+      
+      // 按类型分组数据 / Group data by type
+      const typeData = {};
+      assets.forEach(asset => {
+        const type = asset.type || '其他';
+        const value = (asset.current_price || asset.purchase_price) * asset.quantity;
+        typeData[type] = (typeData[type] || 0) + value;
+      });
+
+      // 创建柱状图实例 / Create bar chart instance
+      new Chart(ctx, {
+        type: 'bar',  // 图表类型 / Chart type
+        data: {
+          labels: Object.keys(typeData),  // 类型标签 / Type labels
+          datasets: [{
+            label: '资产价值',  // 数据集标签 / Dataset label
+            data: Object.values(typeData),  // 数据值 / Data values
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'  // 颜色 / Color
+          }]
+        },
+        options: {
+          responsive: true,  // 响应式设计 / Responsive design
+          scales: {
+            y: {  // Y轴配置 / Y-axis configuration
+              ticks: {
+                callback: v => '¥' + v.toLocaleString()  // 刻度格式化 / Tick formatting
+              }
+            }
+          },
+          plugins: {
+            tooltip: {  // 工具提示配置 / Tooltip configuration
+              callbacks: {
+                label: ctx => '¥' + ctx.raw.toLocaleString()  // 标签回调 / Label callback
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // 页面加载完成后执行主函数 / Execute main function when page loads
+    document.addEventListener('DOMContentLoaded', loadAssets);
+  </script>
+</body>
+</html>
