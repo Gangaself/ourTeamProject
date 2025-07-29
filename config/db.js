@@ -3,7 +3,7 @@ import mysql from 'mysql2/promise';
 const connection = await mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'song4346',
+    password: 'n3u3da!',
     database: 'portfolio_manager'
 });
 
