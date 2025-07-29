@@ -106,3 +106,92 @@ INSERT INTO portfolio_performance (portfolio_id, record_date, total_value, daily
 (5, '2023-04-01', 95000, 0.0120),
 (5, '2023-04-02', 94000, -0.0105),
 (5, '2023-04-03', 94500, 0.0053);
+
+
+INSERT INTO portfolio_performance (portfolio_id, record_date, total_value, daily_return) VALUES
+(1, '2023-04-01', 75000.0000, 0.0052),
+(1, '2023-04-02', 75250.0000, 0.0033),
+(1, '2023-04-03', 75500.0000, 0.0033),
+(2, '2023-04-01', 85000.0000, 0.0085),
+(2, '2023-04-02', 84500.0000, -0.0059),
+(2, '2023-04-03', 84800.0000, 0.0036),
+(3, '2023-04-01', 92000.0000, 0.0043),
+(3, '2023-04-02', 92500.0000, 0.0054),
+(3, '2023-04-03', 92300.0000, -0.0022),
+(4, '2023-04-01', 68000.0000, 0.0015),
+(4, '2023-04-02', 68050.0000, 0.0007),
+(4, '2023-04-03', 68100.0000, 0.0007),
+(5, '2023-04-01', 95000.0000, 0.0120),
+(5, '2023-04-02', 94000.0000, -0.0105),
+(5, '2023-04-03', 94500.0000, 0.0053);
+
+-- 为每个组合生成37天的额外数据（共40天，从4月4日到5月10日）
+-- 组合1 (ID=1) 数据生成
+INSERT INTO portfolio_performance (portfolio_id, record_date, total_value, daily_return)
+WITH RECURSIVE dates AS (
+  SELECT '2023-04-04' AS date
+  UNION ALL
+  SELECT DATE_ADD(date, INTERVAL 1 DAY) FROM dates WHERE date < '2023-05-10'
+)
+SELECT 
+  1 AS portfolio_id,
+  date AS record_date,
+  ROUND(75500 * POWER(1.0033, DAY(date) - 3) * (1 + (RAND() * 0.006 - 0.003)), 4) AS total_value,
+  ROUND(0.0033 + (RAND() * 0.006 - 0.003), 4) AS daily_return
+FROM dates;
+
+-- 组合2 (ID=2) 数据生成
+INSERT INTO portfolio_performance (portfolio_id, record_date, total_value, daily_return)
+WITH RECURSIVE dates AS (
+  SELECT '2023-04-04' AS date
+  UNION ALL
+  SELECT DATE_ADD(date, INTERVAL 1 DAY) FROM dates WHERE date < '2023-05-10'
+)
+SELECT 
+  2 AS portfolio_id,
+  date AS record_date,
+  ROUND(84800 * POWER(1.0036, DAY(date) - 3) * (1 + (RAND() * 0.008 - 0.004)), 4) AS total_value,
+  ROUND(0.0036 + (RAND() * 0.008 - 0.004), 4) AS daily_return
+FROM dates;
+
+-- 组合3 (ID=3) 数据生成
+INSERT INTO portfolio_performance (portfolio_id, record_date, total_value, daily_return)
+WITH RECURSIVE dates AS (
+  SELECT '2023-04-04' AS date
+  UNION ALL
+  SELECT DATE_ADD(date, INTERVAL 1 DAY) FROM dates WHERE date < '2023-05-10'
+)
+SELECT 
+  3 AS portfolio_id,
+  date AS record_date,
+  ROUND(92300 * POWER(0.998, DAY(date) - 3) * (1 + (RAND() * 0.007 - 0.0035)), 4) AS total_value,
+  ROUND(-0.0022 + (RAND() * 0.007 - 0.0035), 4) AS daily_return
+FROM dates;
+
+-- 组合4 (ID=4) 数据生成
+INSERT INTO portfolio_performance (portfolio_id, record_date, total_value, daily_return)
+WITH RECURSIVE dates AS (
+  SELECT '2023-04-04' AS date
+  UNION ALL
+  SELECT DATE_ADD(date, INTERVAL 1 DAY) FROM dates WHERE date < '2023-05-10'
+)
+SELECT 
+  4 AS portfolio_id,
+  date AS record_date,
+  ROUND(68100 * POWER(1.0007, DAY(date) - 3) * (1 + (RAND() * 0.002 - 0.001)), 4) AS total_value,
+  ROUND(0.0007 + (RAND() * 0.002 - 0.001), 4) AS daily_return
+FROM dates;
+
+-- 组合5 (ID=5) 数据生成
+INSERT INTO portfolio_performance (portfolio_id, record_date, total_value, daily_return)
+WITH RECURSIVE dates AS (
+  SELECT '2023-04-04' AS date
+  UNION ALL
+  SELECT DATE_ADD(date, INTERVAL 1 DAY) FROM dates WHERE date < '2023-05-10'
+)
+SELECT 
+  5 AS portfolio_id,
+  date AS record_date,
+  ROUND(94500 * POWER(1.0053, DAY(date) - 3) * (1 + (RAND() * 0.01 - 0.005)), 4) AS total_value,
+  ROUND(0.0053 + (RAND() * 0.01 - 0.005), 4) AS daily_return
+FROM dates;
