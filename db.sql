@@ -1,3 +1,49 @@
+
+
+
+INSERT INTO transaction_record (
+    portfolio_id, type, asset_type, symbol, name, quantity, price, trade_date, currency
+) VALUES
+(1, 'BUY', 'STOCK', 'JNJ', '强生公司', 50, 165.30, '2023-01-15', 'USD'),
+(1, 'BUY', 'BOND', 'US10Y', '美国10年期国债', 1000, 98.50, '2023-02-20', 'USD'),
+(1, 'BUY', 'CASH', 'USD', '美元现金', 50000, 1.00, '2023-03-01', 'USD'),
+
+(2, 'BUY', 'STOCK', 'AAPL', '苹果公司', 30, 145.80, '2023-01-10', 'USD'),
+(2, 'BUY', 'STOCK', 'MSFT', '微软公司', 20, 245.60, '2023-02-05', 'USD'),
+(2, 'BUY', 'STOCK', 'GOOGL', 'Alphabet A类股', 15, 102.75, '2023-03-15', 'USD'),
+
+(3, 'BUY', 'ETF', 'VTI', 'Vanguard全股市ETF', 45, 215.40, '2023-01-20', 'USD'),
+(3, 'BUY', 'ETF', 'BND', 'Vanguard全债市ETF', 800, 79.85, '2023-02-10', 'USD'),
+(3, 'BUY', 'ETF', 'VXUS', 'Vanguard国际股市ETF', 60, 55.30, '2023-03-05', 'USD'),
+
+(4, 'BUY', 'BOND', 'CORP', '公司债券', 5000, 100.00, '2023-01-25', 'USD'),
+(4, 'BUY', 'BOND', 'MUNI', '市政债券', 3000, 100.00, '2023-02-15', 'USD'),
+(4, 'BUY', 'CASH', 'USD', '美元现金', 20000, 1.00, '2023-03-10', 'USD'),
+
+(5, 'BUY', 'STOCK', 'TSLA', '特斯拉公司', 10, 180.50, '2023-01-05', 'USD'),
+(5, 'BUY', 'STOCK', 'NVDA', '英伟达公司', 25, 220.40, '2023-02-25', 'USD'),
+(5, 'BUY', 'ETF', 'ARKK', 'ARK创新ETF', 100, 45.60, '2023-03-20', 'USD');
+
+INSERT INTO transaction_record (
+    portfolio_id, type, asset_type, symbol, name, quantity, price, trade_date, currency
+) VALUES
+(2, 'SELL', 'STOCK', 'AAPL', '苹果公司', 10, 172.00, '2024-05-01', 'USD'),
+(2, 'SELL', 'STOCK', 'GOOGL', 'Alphabet A类股', 5, 120.00, '2024-06-15', 'USD'),
+(3, 'SELL', 'ETF', 'VTI', 'Vanguard全股市ETF', 20, 230.00, '2024-07-10', 'USD'),
+(5, 'SELL', 'STOCK', 'TSLA', '特斯拉公司', 5, 220.00, '2024-08-01', 'USD'),
+(5, 'SELL', 'ETF', 'ARKK', 'ARK创新ETF', 40, 55.00, '2024-09-05', 'USD');
+
+
+
+
+
+
+
+
+
+
+
+
 -- 创建数据库
 CREATE DATABASE IF NOT EXISTS portfolio_manager;
 USE portfolio_manager;

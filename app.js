@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import portfolioRoutes from './routes/portfolioRoutes.js';
 import assetRoutes from './routes/assetRoutes.js';
 import performanceRoutes from './routes/performanceRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -20,6 +21,7 @@ app.use('/js', express.static(path.join(__dirname, 'public/js')));
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/portfolio-performance', performanceRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 // 所有路由都返回index.html (支持前端路由)
 app.get('*', (req, res) => {
