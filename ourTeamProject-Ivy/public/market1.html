@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Management System</title>
+    <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Asset Management</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-item active">All Market Data</li>
+        </ul>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="header-actions">
+            <h1 class="page-title">Market Data List</h1>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <div class="search-title">Search</div>
+            <div class="search-fields">
+                <div class="search-field">
+                    <label for="search-symbol">Symbol</label>
+                    <input type="text" id="search-symbol" placeholder="Enter symbol">
+                </div>
+                <div class="search-field">
+                    <label for="search-name">Name</label>
+                    <input type="text" id="search-name" placeholder="Enter name">
+                </div>
+                <div class="search-field">
+                    <label for="search-type">Type</label>
+                    <select id="search-type">
+                        <option value="">All Types</option>
+                        <option value="STOCK">STOCK</option>
+                        <option value="BOND">BOND</option>
+                        <option value="ETF">ETF</option>
+                        <option value="CASH">CASH</option>
+                        <option value="OTHER">OTHER</option>
+                    </select>
+                </div>
+            </div>
+            <div class="search-actions">
+                <button class="btn btn-secondary">Reset</button>
+                <button class="btn btn-primary">Search</button>
+                <button class="add-btn" id="add-market-btn">Add</button>
+            </div>
+        </div>
+        
+        <!-- Data Table -->
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Current Price</th>
+                        <th>Currency</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="market-data">
+                    <tr>
+                        <td colspan="13" class="loading">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination">
+                <button>&laquo;</button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>&raquo;</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Asset Modal -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Data</h3>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <form id="market-form">
+                <input type="hidden" id="market-id" name="id"> <!-- Hidden field for storing ID during edit -->
+                <div class="form-group">
+                    <label>Type: </label>
+                    <select name="type">
+                        <option>STOCK</option>
+                        <option>BOND</option>
+                        <option>ETF</option>
+                        <option>CASH</option>
+                        <option>OTHER</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Symbol: </label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="symbol" name="symbol" required style="flex: 1;">
+                        <button type="button" class="btn btn-secondary" onclick="fetchPrice()">Get Price</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Name: </label>
+                    <input type="text" name="name">
+                </div>
+                <div class="form-group">
+                    <label>Current Price: </label>
+                    <input type="text" id="current_price" name="current_price" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Currency: </label>
+                    <input type="text" name="currency" value="USD" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="delete-confirm-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Deletion</h3>
+                <button class="close-btn" id="close-delete-modal">&times;</button>
+            </div>
+            <div class="confirm-modal">
+                <p class="confirm-message">Are you sure you want to delete? This action cannot be undone.</p>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-delete">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete">Confirm Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy Asset Modal -->
+    <div class="modal-overlay" id="buy-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Buy Asset</h3>
+                <button class="close-btn" id="close-buy-modal">&times;</button>
+            </div>
+            <form id="buy-form">
+                <input type="hidden" id="buy-market-id" name="market_id">
+                
+                <div class="asset-card">
+                    <h4>Asset Information</h4>
+                    <div class="asset-details">
+                        <div>
+                            <span class="asset-label">Type</span>
+                            <span class="asset-value" id="buy-type"></span>
+                        </div>
+                        <div>
+                            <span class="asset-label">Symbol</span>
+                            <span class="asset-value" id="buy-symbol"></span>
+                        </div>
+                    </div>
+                    <div class="asset-details">
+                        <div>
+                            <span class="asset-label">Name</span>
+                            <span class="asset-value" id="buy-name"></span>
+                        </div>
+                        <div>
+                            <span class="asset-label">Current Price</span>
+                            <span class="asset-value" id="buy-price"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="buy-portfolio">Portfolio</label>
+                    <select id="buy-portfolio" name="portfolio_id" required>
+                        <option value="">Select Portfolio</option>
+                        <!-- Portfolios will be loaded dynamically via JS -->
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="buy-quantity">Quantity</label>
+                        <input type="number" id="buy-quantity" name="quantity" min="0.0001" step="0.0001" required>
+                    </div>
+                    <div class="form-col">
+                        <label for="buy-total">Total Amount</label>
+                        <input type="text" id="buy-total" class="readonly-input" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="buy-date">Purchase Date</label>
+                    <input type="date" id="buy-date" name="purchase_date" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-buy">Cancel</button>
+                    <button type="submit" class="btn btn-buy" id="confirm-buy">Confirm Purchase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API base URL
+        const API_BASE_URL = 'http://localhost:3000/api';
+        
+        // Alpha Vantage API Key - Please replace with your own API key
+        const apiKey = '7UW1HZ8N4JS40AB0';
+        const priceApi = 'https://www.alphavantage.co/query';
+        
+        // Store current asset ID for operations
+        let currentDeleteId = null;
+        let currentEditId = null;
+
+        // Render table data
+        function renderTable(data) {
+            const tableBody = document.getElementById('market-data');
+            tableBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">No matching market data found</td></tr>';
+                return;
+            }
+            
+            data.forEach(market => {
+                // Convert numeric values (might come as strings from database)
+                const currentPrice = parseFloat(market.current_price);
+    
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="type-badge ${market.type}">${market.type}</span></td>
+                    <td>${market.symbol}</td>
+                    <td>${market.name}</td>
+                    <td>${currentPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td>${market.currency}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-buy btn-sm buy-btn" data-id="${market.id}">Buy</button>
+                        <!-- <button class="btn btn-track btn-sm track-btn" data-symbol="${market.symbol}">Track</button> -->
+                        <button class="btn btn-danger btn-sm delete-btn" data-id="${market.id}">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Bind events to action buttons
+            bindActionButtons();
+        }
+
+        // Bind edit and delete button events
+        function bindActionButtons() {
+            // Track button event
+            document.querySelectorAll('.track-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const symbol = this.getAttribute('data-symbol');
+                    window.location.href = `tracking.html?symbol=${symbol}`;
+                });
+            });
+            
+            // Delete button event
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    currentDeleteId = this.getAttribute('data-id');
+                    document.getElementById('delete-confirm-modal').classList.add('active');
+                });
+            });
+        }
+
+        // Fetch asset data from API
+        async function fetchMarkets(filters = {}) {
+            try {
+                // Show loading state
+                const tableBody = document.getElementById('market-data');
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">Loading...</td></tr>';
+                
+                // Build query parameters
+                const params = new URLSearchParams();
+                Object.entries(filters).forEach(([key, value]) => {
+                    if (value) params.append(key, value);
+                });
+                
+                const url = `${API_BASE_URL}/markets/all${params.toString() ? '?' + params.toString() : ''}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                
+                const data = await response.json();
+                renderTable(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                const tableBody = document.getElementById('market-data');
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">Failed to load, please try again</td></tr>';
+            }
+        }
+
+        // Delete asset
+        async function deleteMarket(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/markets/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Deletion failed');
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error deleting:', error);
+                return false;
+            }
+        }
+
+        // Fetch asset price
+        async function fetchPrice() {
+            const symbol = document.getElementById('symbol').value.trim().toUpperCase();
+            if (!symbol) return alert("Please enter a stock symbol");
+
+            try {
+                const url = `${priceApi}?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.Note) {
+                    alert("API rate limit reached, please try again later.");
+                    return;
+                }
+
+                const timeSeries = data['Time Series (5min)'];
+                if (!timeSeries) {
+                    alert("Unable to fetch price data, please check the symbol");
+                    return;
+                }
+
+                // Get most recent time point
+                const latestTime = Object.keys(timeSeries)[0];
+                const latestPrice = timeSeries[latestTime]['4. close'];
+                document.getElementById('current_price').value = parseFloat(latestPrice).toFixed(2);
+                
+            } catch (err) {
+                console.error(err);
+                alert("Failed to fetch price");
+            }
+        }
+
+        // Initialize modals
+        function initModal() {
+            // Add/Edit asset modal
+            const addModal = document.getElementById('add-modal');
+            const addBtn = document.getElementById('add-market-btn');
+            const closeBtn = document.getElementById('close-modal');
+            const cancelBtn = document.getElementById('cancel-btn');
+            
+            // Click add button
+            addBtn.addEventListener('click', () => {
+                currentEditId = null;
+                const form = document.getElementById('market-form');
+                form.reset();
+                document.getElementById('market-id').value = '';
+                addModal.classList.add('active');
+            });
+            
+            // Close modal
+            closeBtn.addEventListener('click', () => {
+                addModal.classList.remove('active');
+            });
+            
+            cancelBtn.addEventListener('click', () => {
+                addModal.classList.remove('active');
+            });
+            
+            // Click outside modal to close
+            addModal.addEventListener('click', (e) => {
+                if (e.target === addModal) {
+                    addModal.classList.remove('active');
+                }
+            });
+            
+            // Delete confirmation modal
+            const deleteModal = document.getElementById('delete-confirm-modal');
+            const closeDeleteBtn = document.getElementById('close-delete-modal');
+            const cancelDeleteBtn = document.getElementById('cancel-delete');
+            const confirmDeleteBtn = document.getElementById('confirm-delete');
+            
+            closeDeleteBtn.addEventListener('click', () => {
+                deleteModal.classList.remove('active');
+            });
+            
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteModal.classList.remove('active');
+            });
+            
+            confirmDeleteBtn.addEventListener('click', async () => {
+                if (currentDeleteId) {
+                    const success = await deleteMarket(currentDeleteId);
+                    deleteModal.classList.remove('active');
+                    
+                    if (success) {
+                        alert('Successfully deleted');
+                        fetchMarkets();
+                    } else {
+                        alert('Deletion failed, please try again');
+                    }
+                }
+            });
+            
+            // Click outside modal to close
+            deleteModal.addEventListener('click', (e) => {
+                if (e.target === deleteModal) {
+                    deleteModal.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize form submission
+        function initFormSubmit() {
+            document.getElementById('market-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const formData = new FormData(form);
+                
+                // Convert to JSON
+                const data = Object.fromEntries(formData.entries());
+                
+                try {
+                    let success = false;
+                    
+                    if (currentEditId) {
+                        // Edit mode - call update API
+                        success = await updateMarket(currentEditId, data);
+                    } else {
+                        // Add mode - call create API
+                        const response = await fetch(`${API_BASE_URL}/markets`, {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json' 
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        success = response.ok;
+                    }
+                    
+                    if (success) {
+                        alert(currentEditId ? 'Asset updated successfully' : 'Asset added successfully');
+                        form.reset();
+                        document.getElementById('add-modal').classList.remove('active');
+                        
+                        // Reload asset list
+                        fetchMarkets();
+                    } else {
+                        throw new Error(currentEditId ? 'Failed to update asset' : 'Failed to save asset');
+                    }
+                } catch (error) {
+                    console.error('Error operating asset:', error);
+                    alert(currentEditId ? 'Failed to update asset, please try again' : 'Failed to add asset, please try again');
+                }
+            });
+        }
+
+        // Initialize search functionality
+        function initSearch() {
+            document.querySelector('.btn-primary').addEventListener('click', function() {
+                const filters = {
+                    symbol: document.getElementById('search-symbol').value,
+                    name: document.getElementById('search-name').value,
+                    type: document.getElementById('search-type').value,
+                };
+                
+                fetchMarkets(filters);
+            });
+            
+            // Reset functionality
+            document.querySelector('.btn-secondary').addEventListener('click', function() {
+                document.getElementById('search-symbol').value = '';
+                document.getElementById('search-name').value = '';
+                document.getElementById('search-type').value = '';
+                fetchMarkets();
+            });
+        }
+
+        // Initialize menu item click events
+        function initMenuItems() {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter data based on menu item
+                    const menuText = this.textContent.trim();
+                    if (menuText === 'All Assets') {
+                        fetchMarkets();
+                    } else if (menuText.startsWith('Portfolio')) {
+                        const portfolioId = menuText.replace('Portfolio', '').trim();
+                        fetchMarkets({ portfolio: portfolioId });
+                    }
+                });
+            });
+        }
+
+        // Initialize page
+        function init() {
+            fetchMarkets();
+            initModal();
+            initFormSubmit();
+            initSearch();
+            initMenuItems();
+        }
+
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

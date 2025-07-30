@@ -40,7 +40,7 @@ INSERT INTO market (type, symbol, name, current_price, currency) VALUES
 ('CASH', 'GBP', 'British Pound', 1.3100, 'USD'),
 
 -- 其他
-('OTHER', 'BTC', 'Bitcoin', 65000.00, 'USD'),
+('OTHER', 'BTC', 'Bitcoin', 70000.00, 'USD'),
 ('OTHER', 'ETH', 'Ethereum', 3500.00, 'USD'),
 ('OTHER', 'REIT001', 'Real Estate Investment Trust A', 45.75, 'USD');
 
@@ -104,7 +104,7 @@ INSERT INTO asset (portfolio_id, type, symbol, name, quantity, purchase_price, c
 (3, 'STOCK', 'NVDA', 'NVIDIA Corporation', 40, 120.00, 125.80, '2025-07-01', 'USD'), -- 盈利
 (3, 'STOCK', 'META', 'Meta Platforms Inc.', 25, 305.00, 300.50, '2025-07-05', 'USD'), -- 亏损
 (3, 'ETF', 'QQQ', 'Invesco QQQ Trust', 50, 445.00, 450.25, '2025-07-10', 'USD'), -- 盈利
-(3, 'OTHER', 'BTC', 'Bitcoin', 0.5, 64000.00, 62000.00, '2025-07-15', 'USD'), -- 亏损
+(3, 'OTHER', 'BTC', 'Bitcoin', 0.5, 64000.00, 70000.00, '2025-07-15', 'USD'), -- 亏损
 (3, 'STOCK', 'AMZN', 'Amazon.com Inc.', 20, 180.00, 185.90, '2025-07-20', 'USD'); -- 盈利
 
 -- 4. 科技主题投资组合

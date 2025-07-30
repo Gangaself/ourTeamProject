@@ -1,45 +1,44 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>资产管理系统</title>
+    <title>Asset Management System</title>
     <link rel="stylesheet" href="style1.css">
 </head>
 <body>
-    <!-- 左侧菜单栏 -->
+    <!-- Left Sidebar Menu -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h2>资产管理</h2>
+            <h2>Asset Management</h2>
         </div>
         <ul class="sidebar-menu">
-            <li class="menu-item active">所有资产</li>
+            <li class="menu-item active">All Assets</li>
         </ul>
     </div>
     
-    <!-- 主内容区 -->
+    <!-- Main Content Area -->
     <div class="main-content">
         <div class="header-actions">
-            <h1 class="page-title">资产列表</h1>
-            
+            <h1 class="page-title">Asset List</h1>
         </div>
         
-        <!-- 搜索栏 -->
+        <!-- Search Bar -->
         <div class="search-bar">
-            <div class="search-title">资产搜索</div>
+            <div class="search-title">Asset Search</div>
             <div class="search-fields">
                 <div class="search-field">
-                    <label for="search-id">资产ID</label>
-                    <input type="text" id="search-id" placeholder="输入资产ID">
+                    <label for="search-id">Asset ID</label>
+                    <input type="text" id="search-id" placeholder="Enter asset ID">
                 </div>
                 <div class="search-field">
-                    <label for="search-name">资产名称</label>
-                    <input type="text" id="search-name" placeholder="输入资产名称或代码">
+                    <label for="search-name">Asset Name</label>
+                    <input type="text" id="search-name" placeholder="Enter asset name or code">
                 </div>
                 <div class="search-field">
-                    <label for="search-type">资产类型</label>
+                    <label for="search-type">Asset Type</label>
                     <select id="search-type">
-                        <option value="">所有类型</option>
+                        <option value="">All Types</option>
                         <option value="STOCK">STOCK</option>
                         <option value="BOND">BOND</option>
                         <option value="ETF">ETF</option>
@@ -48,51 +47,65 @@
                     </select>
                 </div>
                 <div class="search-field">
-                    <label for="search-portfolio">投资组合</label>
+                    <label for="search-portfolio">Portfolio</label>
                     <select id="search-portfolio">
-                        <option value="">所有组合</option>
-                        <option value="1">稳健增长组合</option>
-                        <option value="2">科技先锋组合</option>
-                        <option value="3">全球均衡配置</option>
-                        <option value="4">固定收益组合</option>
-                        <option value="5">高成长组合</option>
+                        <option value="">All Portfolios</option>
+                        <option value="1">Stable Growth Portfolio</option>
+                        <option value="2">Tech Pioneer Portfolio</option>
+                        <option value="3">Global Balanced Allocation</option>
+                        <option value="4">Fixed Income Portfolio</option>
+                        <option value="5">High Growth Portfolio</option>
                     </select>
                 </div>
                 <div class="search-field">
-                    <label for="search-date">购买日期</label>
+                    <label for="search-date">Purchase Date</label>
                     <input type="date" id="search-date">
                 </div>
             </div>
             <div class="search-actions">
-                <button class="btn btn-secondary">重置</button>
-                <button class="btn btn-primary">搜索</button>
-                <button class="add-btn" id="add-asset-btn">添加资产</button>
+                <button class="btn btn-secondary">Reset</button>
+                <button class="btn btn-primary">Search</button>
+                <button class="add-btn" id="add-asset-btn">Add Asset</button>
             </div>
         </div>
-        
-        <!-- 数据表格 -->
+        <!-- Asset Summary Information -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="summary-title">Total Asset Cost</div>
+                <div class="summary-value" id="total-cost">$0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-title">Total Market Value</div>
+                <div class="summary-value" id="total-market-value">$0.00</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-title">Total Profit/Loss</div>
+                <div class="summary-value" id="total-profit-loss">$0.00 (0.00%)</div>
+            </div>
+        </div>
+        <!-- Data Table -->
         <div class="data-table">
             <table>
                 <thead>
                     <tr>
-                        <th>代码</th>
-                        <th>投资组合</th>
-                        <th>类型</th>
-                        <th>代码</th>
-                        <th>名称</th>
-                        <th>数量</th>
-                        <th>购买价格</th>
-                        <th>当前价格</th>
-                        <th>市值</th>
-                        <th>盈亏</th>
-                        <th>购买日期</th>
-                        <th>货币</th>
-                        <th>操作</th> <!-- 操作列 -->
+                        <th>ID</th>
+                        <th>Portfolio</th>
+                        <th>Type</th>
+                        <th>Symbol</th>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Purchase Price</th>
+                        <th>Current Price</th>
+                        <th>Market Value</th>
+                        <th>Profit/Loss</th>
+                        <th>Purchase Date</th>
+                        <th>Currency</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="asset-data">
                     <tr>
-                        <td colspan="13" class="loading">加载中...</td>
+                        <td colspan="13" class="loading">Loading...</td>
                     </tr>
                 </tbody>
             </table>
@@ -106,21 +119,21 @@
         </div>
     </div>
     
-    <!-- 添加资产模态框 -->
+    <!-- Add Asset Modal -->
     <div class="modal-overlay" id="add-modal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">添加资产到组合</h3>
+                <h3 class="modal-title">Add Asset to Portfolio</h3>
                 <button class="close-btn" id="close-modal">&times;</button>
             </div>
             <form id="asset-form">
-                <input type="hidden" id="asset-id" name="id"> <!-- 隐藏字段用于编辑时存储ID -->
+                <input type="hidden" id="asset-id" name="id">
                 <div class="form-group">
-                    <label>组合ID: </label>
+                    <label>Portfolio ID: </label>
                     <input type="number" name="portfolio_id" required min="1" max="5">
                 </div>
                 <div class="form-group">
-                    <label>资产类型: </label>
+                    <label>Asset Type: </label>
                     <select name="type">
                         <option>STOCK</option>
                         <option>BOND</option>
@@ -130,94 +143,98 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>资产代码(symbol): </label>
+                    <label>Asset Symbol: </label>
                     <div style="display: flex; gap: 10px;">
                         <input type="text" id="symbol" name="symbol" required style="flex: 1;">
-                        <button type="button" class="btn btn-secondary" onclick="fetchPrice()">获取价格</button>
+                        <button type="button" class="btn btn-secondary" onclick="fetchPrice()">Get Price</button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>资产名称: </label>
+                    <label>Asset Name: </label>
                     <input type="text" name="name">
                 </div>
                 <div class="form-group">
-                    <label>当前价格: </label>
+                    <label>Current Price: </label>
                     <input type="text" id="current_price" name="current_price" readonly>
                 </div>
                 <div class="form-group">
-                    <label>买入价格: </label>
+                    <label>Purchase Price: </label>
                     <input type="number" id="purchase_price" name="purchase_price" step="0.01">
                 </div>
                 <div class="form-group">
-                    <label>数量: </label>
+                    <label>Quantity: </label>
                     <input type="number" name="quantity" step="0.01" required>
                 </div>
                 <div class="form-group">
-                    <label>买入日期: </label>
+                    <label>Purchase Date: </label>
                     <input type="date" name="purchase_date">
                 </div>
                 <div class="form-group">
-                    <label>货币: </label>
+                    <label>Currency: </label>
                     <input type="text" name="currency" value="USD" required>
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancel-btn">取消</button>
-                    <button type="submit" class="btn btn-primary">提交</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
             </form>
         </div>
     </div>
     
-    <!-- 删除确认模态框 -->
+    <!-- Delete Confirmation Modal -->
     <div class="modal-overlay" id="delete-confirm-modal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">确认删除</h3>
+                <h3 class="modal-title">Confirm Deletion</h3>
                 <button class="close-btn" id="close-delete-modal">&times;</button>
             </div>
             <div class="confirm-modal">
-                <p class="confirm-message">您确定要删除这项资产吗？此操作无法撤销。</p>
+                <p class="confirm-message">Are you sure you want to delete this asset? This action cannot be undone.</p>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancel-delete">取消</button>
-                    <button type="button" class="btn btn-danger" id="confirm-delete">确认删除</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-delete">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete">Confirm Delete</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // API基础地址
+        // API base URL
         const API_BASE_URL = 'http://localhost:3000/api';
         
-        // Alpha Vantage API Key - 请替换为您自己的API密钥
+        // Alpha Vantage API Key - Please replace with your own API key
         const apiKey = '7UW1HZ8N4JS40AB0';
         const priceApi = 'https://www.alphavantage.co/query';
         
-        // 存储当前操作的资产ID
+        // Store current operating asset ID
         let currentDeleteId = null;
         let currentEditId = null;
 
-        // 投资组合映射表，用于将ID转换为名称
+        // Portfolio mapping table for converting ID to name
         const portfolioMap = {
-            '1': '稳健增长组合',
-            '2': '科技先锋组合',
-            '3': '全球均衡配置',
-            '4': '固定收益组合',
-            '5': '高成长组合'
+            '1': 'Stable Growth Portfolio',
+            '2': 'Tech Pioneer Portfolio',
+            '3': 'Global Balanced Allocation',
+            '4': 'Fixed Income Portfolio',
+            '5': 'High Growth Portfolio'
         };
 
-        // 渲染表格数据
+        // Render table data
         function renderTable(data) {
             const tableBody = document.getElementById('asset-data');
             tableBody.innerHTML = '';
             
             if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="13" class="loading">没有找到匹配的资产数据</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">No matching asset data found</td></tr>';
+                updateSummaryCards(0, 0); // Reset summary display
                 return;
             }
             
+            let totalCost = 0;
+            let totalMarketValue = 0;
+            
             data.forEach(asset => {
-                // 转换数值类型（从数据库获取的可能是字符串）
+                // Convert numeric types (may be strings from database)
                 const quantity = parseFloat(asset.quantity);
                 const purchasePrice = parseFloat(asset.purchase_price);
                 const currentPrice = parseFloat(asset.current_price);
@@ -227,13 +244,17 @@
                 const profitLoss = marketValue - costBasis;
                 const profitLossPercent = (profitLoss / costBasis * 100).toFixed(2);
                 
-                // 获取投资组合名称
-                const portfolioName = portfolioMap[asset.portfolio_id] || `组合 ${asset.portfolio_id}`;
+                // Accumulate totals
+                totalCost += costBasis;
+                totalMarketValue += marketValue;
+                
+                // Get portfolio name
+                const portfolioName = portfolioMap[asset.portfolio_id] || `Portfolio ${asset.portfolio_id}`;
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${asset.id}</td>
-                    <td><span class="portfolio-badge">组合 ${asset.portfolio_id}</span></td>
+                    <td><span class="portfolio-badge">Portfolio ${asset.portfolio_id}</span></td>
                     <td><span class="type-badge ${asset.type}">${asset.type}</span></td>
                     <td>${asset.symbol}</td>
                     <td>${asset.name}</td>
@@ -247,20 +268,67 @@
                     <td>${asset.purchase_date}</td>
                     <td>${asset.currency}</td>
                     <td class="action-buttons">
-                        <button class="btn btn-edit btn-sm edit-btn" data-id="${asset.id}">编辑</button>
-                        <button class="btn btn-danger btn-sm delete-btn" data-id="${asset.id}">删除</button>
+                        <button class="btn btn-edit btn-sm edit-btn" data-id="${asset.id}">Edit</button>
+                        <button class="btn btn-danger btn-sm delete-btn" data-id="${asset.id}">Delete</button>
                     </td>
                 `;
                 tableBody.appendChild(row);
             });
             
-            // 为操作按钮绑定事件
+            // Update summary cards
+            updateSummaryCards(totalCost, totalMarketValue);
+            
+            // Bind events to action buttons
             bindActionButtons();
         }
 
-        // 绑定编辑和删除按钮事件
+        // Update summary cards display
+        function updateSummaryCards(totalCost, totalMarketValue) {
+            const totalProfitLoss = totalMarketValue - totalCost;
+            const totalProfitLossPercent = totalCost > 0 ? 
+                (totalProfitLoss / totalCost * 100).toFixed(2) : 0;
+            
+            // Format currency display
+            const costDisplay = totalCost.toLocaleString(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            const marketValueDisplay = totalMarketValue.toLocaleString(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            const profitLossDisplay = totalProfitLoss.toLocaleString(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            
+            // Update DOM elements
+            document.getElementById('total-cost').textContent = costDisplay;
+            document.getElementById('total-market-value').textContent = marketValueDisplay;
+            
+            const profitLossElement = document.getElementById('total-profit-loss');
+            profitLossElement.textContent = `${totalProfitLoss > 0 ? '+' : ''}${profitLossDisplay} (${totalProfitLossPercent}%)`;
+            
+            // Set color class based on profit/loss
+            profitLossElement.className = 'summary-value';
+            if (totalProfitLoss > 0) {
+                profitLossElement.classList.add('profit');
+            } else if (totalProfitLoss < 0) {
+                profitLossElement.classList.add('loss');
+            }
+        }
+
+        // Bind edit and delete button events
         function bindActionButtons() {
-            // 编辑按钮事件
+            // Edit button event
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', async function() {
                     const assetId = this.getAttribute('data-id');
@@ -268,7 +336,7 @@
                 });
             });
             
-            // 删除按钮事件
+            // Delete button event
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     currentDeleteId = this.getAttribute('data-id');
@@ -277,23 +345,23 @@
             });
         }
 
-        // 加载资产数据用于编辑
+        // Load asset data for editing
         async function loadAssetForEdit(id) {
             try {
                 const response = await fetch(`${API_BASE_URL}/assets/${id}`);
                 
                 if (!response.ok) {
-                    throw new Error('获取资产数据失败');
+                    throw new Error('Failed to get asset data');
                 }
                 
                 const asset = await response.json();
                 currentEditId = id;
                 
-                // 填充表单数据
+                // Populate form data
                 const form = document.getElementById('asset-form');
                 form.reset();
                 
-                // 填充各个字段
+                // Fill in fields
                 document.getElementById('asset-id').value = asset.id;
                 form.elements['portfolio_id'].value = asset.portfolio_id;
                 form.elements['type'].value = asset.type;
@@ -305,25 +373,25 @@
                 form.elements['purchase_date'].value = asset.purchase_date;
                 form.elements['currency'].value = asset.currency || 'USD';
                 
-                // 更改模态框标题
-                document.querySelector('#add-modal .modal-title').textContent = '编辑资产';
+                // Change modal title
+                document.querySelector('#add-modal .modal-title').textContent = 'Edit Asset';
                 
-                // 显示模态框
+                // Show modal
                 document.getElementById('add-modal').classList.add('active');
             } catch (error) {
-                console.error('加载资产数据失败:', error);
-                alert('加载资产数据失败，请重试');
+                console.error('Failed to load asset data:', error);
+                alert('Failed to load asset data, please try again');
             }
         }
 
-        // 从API获取资产数据
+        // Get asset data from API
         async function fetchAssets(filters = {}) {
             try {
-                // 显示加载状态
+                // Show loading state
                 const tableBody = document.getElementById('asset-data');
-                tableBody.innerHTML = '<tr><td colspan="13" class="loading">加载中...</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">Loading...</td></tr>';
                 
-                // 构建查询参数
+                // Build query parameters
                 const params = new URLSearchParams();
                 Object.entries(filters).forEach(([key, value]) => {
                     if (value) params.append(key, value);
@@ -333,19 +401,19 @@
                 const response = await fetch(url);
                 
                 if (!response.ok) {
-                    throw new Error('获取资产数据失败');
+                    throw new Error('Failed to get asset data');
                 }
                 
                 const data = await response.json();
                 renderTable(data);
             } catch (error) {
-                console.error('获取资产数据时出错:', error);
+                console.error('Error getting asset data:', error);
                 const tableBody = document.getElementById('asset-data');
-                tableBody.innerHTML = '<tr><td colspan="13" class="loading">加载失败，请重试</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">Failed to load, please try again</td></tr>';
             }
         }
 
-        // 更新资产数据
+        // Update asset data
         async function updateAsset(id, data) {
             try {
                 const response = await fetch(`${API_BASE_URL}/assets/${id}`, {
@@ -357,17 +425,17 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error('更新资产失败');
+                    throw new Error('Failed to update asset');
                 }
                 
                 return true;
             } catch (error) {
-                console.error('更新资产时出错:', error);
+                console.error('Error updating asset:', error);
                 return false;
             }
         }
 
-        // 删除资产
+        // Delete asset
         async function deleteAsset(id) {
             try {
                 const response = await fetch(`${API_BASE_URL}/assets/${id}`, {
@@ -375,20 +443,20 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error('删除资产失败');
+                    throw new Error('Failed to delete asset');
                 }
                 
                 return true;
             } catch (error) {
-                console.error('删除资产时出错:', error);
+                console.error('Error deleting asset:', error);
                 return false;
             }
         }
 
-        // 获取资产价格
+        // Get asset price
         async function fetchPrice() {
             const symbol = document.getElementById('symbol').value.trim().toUpperCase();
-            if (!symbol) return alert("请输入股票代码");
+            if (!symbol) return alert("Please enter stock symbol");
 
             try {
                 const url = `${priceApi}?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`;
@@ -396,50 +464,50 @@
                 const data = await res.json();
 
                 if (data.Note) {
-                    alert("API调用频率受限，请稍后再试。");
+                    alert("API call frequency limited, please try again later.");
                     return;
                 }
 
                 const timeSeries = data['Time Series (5min)'];
                 if (!timeSeries) {
-                    alert("无法获取价格数据，请检查股票代码是否正确");
+                    alert("Unable to get price data, please check if the symbol is correct");
                     return;
                 }
 
-                // 取最近的时间点
+                // Get most recent time point
                 const latestTime = Object.keys(timeSeries)[0];
                 const latestPrice = timeSeries[latestTime]['4. close'];
                 document.getElementById('current_price').value = parseFloat(latestPrice).toFixed(2);
                 
-                // 如果是新增状态且买入价格为空，则自动填充
+                // If in add mode and purchase price is empty, auto-fill
                 if (!currentEditId && !document.getElementById('purchase_price').value) {
                     document.getElementById('purchase_price').value = parseFloat(latestPrice).toFixed(2);
                 }
             } catch (err) {
                 console.error(err);
-                alert("获取价格失败");
+                alert("Failed to get price");
             }
         }
 
-        // 初始化模态框
+        // Initialize modals
         function initModal() {
-            // 添加/编辑资产模态框
+            // Add/edit asset modal
             const addModal = document.getElementById('add-modal');
             const addBtn = document.getElementById('add-asset-btn');
             const closeBtn = document.getElementById('close-modal');
             const cancelBtn = document.getElementById('cancel-btn');
             
-            // 点击添加按钮
+            // Click add button
             addBtn.addEventListener('click', () => {
                 currentEditId = null;
                 const form = document.getElementById('asset-form');
                 form.reset();
-                document.querySelector('#add-modal .modal-title').textContent = '添加资产到组合';
+                document.querySelector('#add-modal .modal-title').textContent = 'Add Asset to Portfolio';
                 document.getElementById('asset-id').value = '';
                 addModal.classList.add('active');
             });
             
-            // 关闭模态框
+            // Close modal
             closeBtn.addEventListener('click', () => {
                 addModal.classList.remove('active');
             });
@@ -448,14 +516,14 @@
                 addModal.classList.remove('active');
             });
             
-            // 点击模态框外部关闭
+            // Click outside modal to close
             addModal.addEventListener('click', (e) => {
                 if (e.target === addModal) {
                     addModal.classList.remove('active');
                 }
             });
             
-            // 删除确认模态框
+            // Delete confirmation modal
             const deleteModal = document.getElementById('delete-confirm-modal');
             const closeDeleteBtn = document.getElementById('close-delete-modal');
             const cancelDeleteBtn = document.getElementById('cancel-delete');
@@ -475,15 +543,15 @@
                     deleteModal.classList.remove('active');
                     
                     if (success) {
-                        alert('资产已成功删除');
+                        alert('Asset successfully deleted');
                         fetchAssets();
                     } else {
-                        alert('删除资产失败，请重试');
+                        alert('Failed to delete asset, please try again');
                     }
                 }
             });
             
-            // 点击模态框外部关闭
+            // Click outside modal to close
             deleteModal.addEventListener('click', (e) => {
                 if (e.target === deleteModal) {
                     deleteModal.classList.remove('active');
@@ -491,24 +559,24 @@
             });
         }
 
-        // 初始化表单提交
+        // Initialize form submission
         function initFormSubmit() {
             document.getElementById('asset-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const form = e.target;
                 const formData = new FormData(form);
                 
-                // 转换为JSON
+                // Convert to JSON
                 const data = Object.fromEntries(formData.entries());
                 
                 try {
                     let success = false;
                     
                     if (currentEditId) {
-                        // 编辑模式 - 调用更新接口
+                        // Edit mode - call update API
                         success = await updateAsset(currentEditId, data);
                     } else {
-                        // 新增模式 - 调用创建接口
+                        // Add mode - call create API
                         const response = await fetch(`${API_BASE_URL}/assets`, {
                             method: 'POST',
                             headers: { 
@@ -521,23 +589,23 @@
                     }
                     
                     if (success) {
-                        alert(currentEditId ? '资产更新成功' : '资产添加成功');
+                        alert(currentEditId ? 'Asset successfully updated' : 'Asset successfully added');
                         form.reset();
                         document.getElementById('add-modal').classList.remove('active');
                         
-                        // 重新加载资产列表
+                        // Reload asset list
                         fetchAssets();
                     } else {
-                        throw new Error(currentEditId ? '更新资产失败' : '保存资产失败');
+                        throw new Error(currentEditId ? 'Failed to update asset' : 'Failed to save asset');
                     }
                 } catch (error) {
-                    console.error('操作资产时出错:', error);
-                    alert(currentEditId ? '更新资产失败，请重试' : '添加资产失败，请重试');
+                    console.error('Error operating asset:', error);
+                    alert(currentEditId ? 'Failed to update asset, please try again' : 'Failed to add asset, please try again');
                 }
             });
         }
 
-        // 初始化搜索功能
+        // Initialize search function
         function initSearch() {
             document.querySelector('.btn-primary').addEventListener('click', function() {
                 const filters = {
@@ -551,7 +619,7 @@
                 fetchAssets(filters);
             });
             
-            // 重置功能
+            // Reset function
             document.querySelector('.btn-secondary').addEventListener('click', function() {
                 document.getElementById('search-id').value = '';
                 document.getElementById('search-name').value = '';
@@ -562,26 +630,26 @@
             });
         }
 
-        // 初始化菜单项点击事件
+        // Initialize menu item click events
         function initMenuItems() {
             document.querySelectorAll('.menu-item').forEach(item => {
                 item.addEventListener('click', function() {
                     document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // 根据菜单项筛选数据
+                    // Filter data based on menu item
                     const menuText = this.textContent.trim();
-                    if (menuText === '所有资产') {
+                    if (menuText === 'All Assets') {
                         fetchAssets();
-                    } else if (menuText.startsWith('投资组合')) {
-                        const portfolioId = menuText.replace('投资组合', '').trim();
+                    } else if (menuText.startsWith('Portfolio')) {
+                        const portfolioId = menuText.replace('Portfolio', '').trim();
                         fetchAssets({ portfolio: portfolioId });
                     }
                 });
             });
         }
 
-        // 初始化页面
+        // Initialize page
         function init() {
             fetchAssets();
             initModal();
@@ -590,7 +658,7 @@
             initMenuItems();
         }
 
-        // 页面加载完成后初始化
+        // Initialize after page loads
         window.addEventListener('DOMContentLoaded', init);
     </script>
 </body>

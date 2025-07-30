@@ -255,6 +255,7 @@
                     <td>${market.currency}</td>
                     <td class="action-buttons">
                         <button class="btn btn-buy btn-sm buy-btn" data-id="${market.id}">买入</button>
+                           <button class="btn btn-track btn-sm track-btn" data-symbol="${market.symbol}">跟踪</button>
                         <button class="btn btn-danger btn-sm delete-btn" data-id="${market.id}">删除</button>
                         
                     </td>
@@ -269,7 +270,13 @@
         // 绑定编辑和删除按钮事件
         function bindActionButtons() {
             
-            
+            // 跟踪按钮事件
+            document.querySelectorAll('.track-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const symbol = this.getAttribute('data-symbol');
+                    window.location.href = `tracking.html?symbol=${symbol}`;
+                });
+            });
             // 删除按钮事件
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', function() {
