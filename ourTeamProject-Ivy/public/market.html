@@ -30,11 +30,11 @@
             <div class="search-fields">
                 <div class="search-field">
                     <label for="search-symbol">代码</label>
-                    <input type="text" id="search-symbol" placeholder="输入资产代码">
+                    <input type="text" id="search-symbol" placeholder="输入代码">
                 </div>
                 <div class="search-field">
                     <label for="search-name">名称</label>
-                    <input type="text" id="search-name" placeholder="输入资产名称">
+                    <input type="text" id="search-name" placeholder="输入名称">
                 </div>
                 <div class="search-field">
                     <label for="search-type">类型</label>
@@ -148,6 +148,74 @@
         </div>
     </div>
 
+    <!-- 买入资产模态框 -->
+    <div class="modal-overlay" id="buy-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">买入资产</h3>
+                <button class="close-btn" id="close-buy-modal">&times;</button>
+            </div>
+            <form id="buy-form">
+                <input type="hidden" id="buy-market-id" name="market_id">
+                
+                <div class="asset-card">
+                    <h4>资产信息</h4>
+                    <div class="asset-details">
+                        <div>
+                            <span class="asset-label">类型</span>
+                            <span class="asset-value" id="buy-type"></span>
+                        </div>
+                        <div>
+                            <span class="asset-label">代码</span>
+                            <span class="asset-value" id="buy-symbol"></span>
+                        </div>
+                    </div>
+                    <div class="asset-details">
+                        <div>
+                            <span class="asset-label">名称</span>
+                            <span class="asset-value" id="buy-name"></span>
+                        </div>
+                        <div>
+                            <span class="asset-label">当前价格</span>
+                            <span class="asset-value" id="buy-price"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="buy-portfolio">投资组合</label>
+                    <select id="buy-portfolio" name="portfolio_id" required>
+                        <option value="">请选择投资组合</option>
+                        <!-- 组合将通过JS动态加载 -->
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="buy-quantity">购买数量</label>
+                        <input type="number" id="buy-quantity" name="quantity" min="0.0001" step="0.0001" required>
+                    </div>
+                    <div class="form-col">
+                        <label for="buy-total">总金额</label>
+                        <input type="text" id="buy-total" class="readonly-input" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="buy-date">购买日期</label>
+                    <input type="date" id="buy-date" name="purchase_date" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-buy">取消</button>
+                    <button type="submit" class="btn btn-buy" id="confirm-buy">确认买入</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+     
+
     <script>
         // API基础地址
         const API_BASE_URL = 'http://localhost:3000/api';
@@ -186,8 +254,9 @@
                     <td>${currentPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                     <td>${market.currency}</td>
                     <td class="action-buttons">
-                        <button class="btn btn-edit btn-sm edit-btn" data-id="${market.id}">编辑</button>
+                        <button class="btn btn-buy btn-sm buy-btn" data-id="${market.id}">买入</button>
                         <button class="btn btn-danger btn-sm delete-btn" data-id="${market.id}">删除</button>
+                        
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -199,13 +268,7 @@
 
         // 绑定编辑和删除按钮事件
         function bindActionButtons() {
-            // 编辑按钮事件
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', async function() {
-                    const marketId = this.getAttribute('data-id');
-                    await loadMarketForEdit(marketId);
-                });
-            });
+            
             
             // 删除按钮事件
             document.querySelectorAll('.delete-btn').forEach(button => {
@@ -216,39 +279,7 @@
             });
         }
 
-        // 加载资产数据用于编辑
-        async function loadMarketForEdit(id) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/markets/${id}`);
-                
-                if (!response.ok) {
-                    throw new Error('获取资产数据失败');
-                }
-                
-                const market = await response.json();
-                currentEditId = id;
-                
-                // 填充表单数据
-                const form = document.getElementById('market-form');
-                form.reset();
-                
-                // 填充各个字段
-                document.getElementById('market-id').value = market.id;
-                form.elements['type'].value = market.type;
-                form.elements['symbol'].value = market.symbol;
-                form.elements['name'].value = market.name;
-                form.elements['currency'].value = market.currency || 'USD';
-                
-                // 更改模态框标题
-                document.querySelector('#add-modal .modal-title').textContent = '编辑资产';
-                
-                // 显示模态框
-                document.getElementById('add-modal').classList.add('active');
-            } catch (error) {
-                console.error('加载资产数据失败:', error);
-                alert('加载资产数据失败，请重试');
-            }
-        }
+        
 
         // 从API获取资产数据
         async function fetchMarkets(filters = {}) {
@@ -279,27 +310,7 @@
             }
         }
 
-        // 更新资产数据
-        async function updateMarket(id, data) {
-            try {
-                const response = await fetch(`${API_BASE_URL}/markets/${id}`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json' 
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) {
-                    throw new Error('更新资产失败');
-                }
-                
-                return true;
-            } catch (error) {
-                console.error('更新资产时出错:', error);
-                return false;
-            }
-        }
+
 
         // 删除资产
         async function deleteMarket(id) {
@@ -419,6 +430,9 @@
                     deleteModal.classList.remove('active');
                 }
             });
+
+            
+
         }
 
         // 初始化表单提交
