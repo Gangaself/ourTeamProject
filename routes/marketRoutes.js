@@ -10,8 +10,8 @@ router.get('/all', async (req, res) => {
     const conditions = [];
 
     if (req.query.symbol) {
-      conditions.push('symbol = ?');
-      params.push(req.query.symbol);
+      conditions.push('(symbol LIKE ?)');
+      params.push(`%${req.query.symbol}%`);
     }
 
     if (req.query.name) {

@@ -7,7 +7,25 @@
   <title>Asset Transaction Records Query</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <style>
+    /* 添加返回按钮样式 */
+    .return-btn {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+      transition: background-color 0.3s;
+      margin-bottom: 20px;
+    }
 
+    .return-btn:hover {
+      background-color: #5a6268;
+    }
+  </style>
   <script>
     tailwind.config = {
       theme: {
@@ -42,6 +60,10 @@
 </head>
 <body class="font-inter bg-gray-50 min-h-screen">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 添加返回按钮 -->
+    <button class="return-btn" id="return-btn">
+      <i class="fa fa-arrow-left"></i> Back to Assets
+    </button>
     <!-- Page Title -->
     <div class="mb-8">
       <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-2">Asset Transaction Records Query</h1>
@@ -242,6 +264,11 @@
       resetBtn.addEventListener('click', resetForm);
       prevPageBtn.addEventListener('click', goToPrevPage);
       nextPageBtn.addEventListener('click', goToNextPage);
+
+      // 添加返回按钮事件
+      document.getElementById('return-btn').addEventListener('click', function() {
+        window.location.href = 'asset.html'; // 返回到资产页面
+      });
     });
     
     // Handle search request

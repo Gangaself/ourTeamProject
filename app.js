@@ -30,10 +30,15 @@ app.use('/api/transactions', transactionRoutes);
 
 app.use('/api/user', userRoutes);
 
-// 所有路由都返回index.html (支持前端路由)
+// 添加根路径重定向到 asset.html
+app.get('/', (req, res) => {
+    res.redirect('/asset.html');
+});
+
+// 前端路由处理（支持React/Vue等SPA）
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  });
+    res.sendFile(path.join(__dirname, 'public', 'asset.html'));
+});
 
 const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}/asset.html`));

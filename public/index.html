@@ -2,115 +2,123 @@
 <html lang="zh-CN">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Investment Management System</title>
-  <link rel="stylesheet" href="./css/menuStyle.css">
-  <!-- 添加 view_portfolios 使用的样式 -->
-  <link rel="stylesheet" href="./css/performStyle.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Management System</title>
+    <link rel="stylesheet" href="./css/menuStyle.css">
+    <!-- 添加 view_portfolios 使用的样式 -->
+    <link rel="stylesheet" href="./css/performStyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
-  <!-- 导航菜单 -->
-  <nav class="navbar">
+<!-- 导航菜单 -->
+<nav class="navbar">
     <div class="container">
-      <a class="nav-logo">
-        <img src="./images/invest.png" alt="Investment Management System Logo" class="logo-img">
-        Investment Management System
-      </a>
-      <ul class="nav-links">
-        <!-- todo  -->
-        <li><a href="#" class="active" id="portfolio-tab">Portfolio</a></li>
-        <li><a href="#" id="assets-tab">Assets</a></li>
-        <!-- 新增用户中心菜单项 -->
-        <li><a href="#" id="user-tab">User Center</a></li>
-      </ul>
+        <a class="nav-logo">
+            <img src="./images/invest.png" alt="Investment Management System Logo" class="logo-img">
+            Investment Management System
+        </a>
+        <ul class="nav-links">
+            <li><a href="#" class="active" id="portfolio-tab">Portfolio</a></li>
+            <li><a href="asset.html" id="assets-tab">Assets</a></li> <!-- 修改这里 -->
+            <!-- 新增用户中心菜单项 -->
+            <li><a href="#" id="user-tab">User Center</a></li>
+        </ul>
     </div>
-  </nav>
+</nav>
 
-  <!-- 内容区域 - 替换为 view_portfolios 的内容 -->
-  <div class="container">
+<!-- 内容区域 - 替换为 view_portfolios 的内容 -->
+<div class="container">
     <!-- 投资组合内容 -->
     <div id="portfolio-content" class="content-section">
-      <h2><i class="fas fa-chart-pie"></i> Portfolio Management</h2>
+        <h2><i class="fas fa-chart-pie"></i> Portfolio Management</h2>
 
-      <div class="add-btn-container">
-        <button id="add-portfolio" class="add-btn" onclick="showAddForm()">
-          <i class="fas fa-plus"></i> Add Portfolio
-        </button>
-      </div>
+        <div class="add-btn-container">
+            <button id="add-portfolio" class="add-btn" onclick="showAddForm()">
+                <i class="fas fa-plus"></i> Add Portfolio
+            </button>
+        </div>
 
-      <!-- 添加组合的表单 -->
-      <div id="add-form" class="form-container" style="display: none;">
-        <div class="form-row">
-          <label for="add-name"><i class="fas fa-tag"></i> Portfolio Name</label>
-          <input type="text" id="add-name" placeholder="Please enter a portfolio name">
+        <!-- 添加组合的表单 -->
+        <div id="add-form" class="form-container" style="display: none;">
+            <div class="form-row">
+                <label for="add-name"><i class="fas fa-tag"></i> Portfolio Name</label>
+                <input type="text" id="add-name" placeholder="Please enter a portfolio name">
+            </div>
+            <div class="form-row">
+                <label for="add-desc"><i class="fas fa-align-left"></i> Portfolio Description</label>
+                <input type="text" id="add-desc" placeholder="Please enter a portfolio description">
+            </div>
+            <div class="form-row">
+                <button class="btn btn-success" onclick="handleAddPortfolio()">
+                    <i class="fas fa-check"></i> Submit
+                </button>
+                <button class="btn btn-danger" onclick="hideAddForm()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
         </div>
-        <div class="form-row">
-          <label for="add-desc"><i class="fas fa-align-left"></i> Portfolio Description</label>
-          <input type="text" id="add-desc" placeholder="Please enter a portfolio description">
-        </div>
-        <div class="form-row">
-          <button class="btn btn-success" onclick="handleAddPortfolio()">
-            <i class="fas fa-check"></i> Submit
-          </button>
-          <button class="btn btn-danger" onclick="hideAddForm()">
-            <i class="fas fa-times"></i> Cancel
-          </button>
-        </div>
-      </div>
-      <ul id="portfolio-list" class="portfolio-list"></ul>
+        <ul id="portfolio-list" class="portfolio-list"></ul>
     </div>
 
     <!-- 资产内容 (初始隐藏) -->
     <div id="assets-content" class="content-section" style="display: none;">
-      <h2>资产列表</h2>
-      <div id="assets-list"></div>
+        <h2>资产列表</h2>
+        <div id="assets-list"></div>
     </div>
 
     <div id="user-content" class="content-section" style="display: none;">
-      <h2><i class="fas fa-user-circle"></i> User Center</h2>
-      <div id="user-info">
-        <div class="user-detail">
-          <label><i class="fas fa-user"></i> Username:</label>
-          <span id="username"></span>
+        <h2><i class="fas fa-user-circle"></i> User Center</h2>
+        <div id="user-info">
+            <div class="user-detail">
+                <label><i class="fas fa-user"></i> Username:</label>
+                <span id="username"></span>
+            </div>
+            <div class="user-detail">
+                <label><i class="fas fa-envelope"></i> Email:</label>
+                <span id="email"></span>
+            </div>
+            <div class="user-detail">
+                <label><i class="fas fa-wallet"></i> Initial Amount:</label>
+                <span id="initial-amount"></span>
+            </div>
+            <div class="user-detail">
+                <label><i class="fas fa-coins"></i> Current Balance:</label>
+                <span id="balance"></span>
+            </div>
+            <div class="user-detail">
+                <label><i class="fas fa-money-bill-wave"></i> Currency:</label>
+                <span id="currency"></span>
+            </div>
+            <div class="user-detail">
+                <label><i class="fas fa-calendar-plus"></i> Registration Time:</label>
+                <span id="created-at"></span>
+            </div>
+            <div class="user-detail">
+                <label><i class="fas fa-calendar-check"></i> Last Updated:</label>
+                <span id="updated-at"></span>
+            </div>
         </div>
-        <div class="user-detail">
-          <label><i class="fas fa-envelope"></i> Email:</label>
-          <span id="email"></span>
-        </div>
-        <div class="user-detail">
-          <label><i class="fas fa-wallet"></i> Initial Amount:</label>
-          <span id="initial-amount"></span>
-        </div>
-        <div class="user-detail">
-          <label><i class="fas fa-coins"></i> Current Balance:</label>
-          <span id="balance"></span>
-        </div>
-        <div class="user-detail">
-          <label><i class="fas fa-money-bill-wave"></i> Currency:</label>
-          <span id="currency"></span>
-        </div>
-        <div class="user-detail">
-          <label><i class="fas fa-calendar-plus"></i> Registration Time:</label>
-          <span id="created-at"></span>
-        </div>
-        <div class="user-detail">
-          <label><i class="fas fa-calendar-check"></i> Last Updated:</label>
-          <span id="updated-at"></span>
-        </div>
-      </div>
     </div>
 
-  </div>
+</div>
 
 
-
-  <!-- 使用 view_portfolios 的脚本 -->
-  <script src="./js/portfolioFunctions.js"></script>
-  <!-- 保留原来的导航功能 -->
-  <script src="./js/app.js"></script>
+<!-- 使用 view_portfolios 的脚本 -->
+<script src="./js/portfolioFunctions.js"></script>
+<!-- 保留原来的导航功能 -->
+<script src="./js/app.js"></script>
+<script>
+    // 在app.js中添加事件监听（如果app.js不存在，添加以下脚本）
+    document.addEventListener('DOMContentLoaded', function () {
+        // 确保Assets菜单项能正确跳转
+        document.getElementById('assets-tab').addEventListener('click', function (e) {
+            e.preventDefault(); // 防止默认链接行为
+            window.location.href = 'asset.html';
+        });
+    });
+</script>
 </body>
 
 </html>
