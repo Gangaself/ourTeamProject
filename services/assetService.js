@@ -52,4 +52,42 @@ export async function deleteAsset(id) {
   await connection.query(`DELETE FROM asset WHERE id = ?`, [id]);
 }
 
+export async function sellAsset(data) {
+  const { assetId, quantity, price, date, note } = data;
+
+  try {
+    // 获取资产详情
+    const [assetRows] = await connection.query('SELECT * FROM asset WHERE id = ?', [assetId]);
+    if (assetRows.length === 0) throw new Error('资产未找到');
+
+    const asset = assetRows[0];
+
+    // 插入交易记录
+    await connection.query(
+      `INSERT INTO transaction_record 
+          (portfolio_id, type, asset_type, symbol, name, quantity, price, currency, trade_date, note)
+          VALUES (?, 'SELL', ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        asset.portfolio_id,
+        asset.type,
+        asset.symbol,
+        asset.name,
+        quantity,
+        price,
+        asset.currency,
+        date,
+        note || `卖出${asset.symbol}`
+      ]
+    );
+
+    // 删除资产记录
+    await connection.query('DELETE FROM asset WHERE id = ?', [assetId]);
+
+    return true;
+  } catch (error) {
+    console.error('卖出资产失败:', error);
+    throw error;
+  }
+}
+
 
