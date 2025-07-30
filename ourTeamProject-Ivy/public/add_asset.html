@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>添加资产</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h2>添加资产到组合</h2>
+  <form id="asset-form">
+    <label>组合ID: <input type="number" name="portfolio_id" required /></label><br>
+    <label>资产类型:
+      <select name="type">
+        <option>STOCK</option>
+        <option>BOND</option>
+        <option>ETF</option>
+        <option>CASH</option>
+        <option>OTHER</option>
+      </select>
+    </label><br>
+    <label>资产代码(symbol): <input type="text" id="symbol" name="symbol" required /></label>
+    <button type="button" onclick="fetchPrice()">获取当前价格</button><br>
+    <label>资产名称: <input type="text" name="name" /></label><br>
+    <label>当前价格: <input type="text" id="current_price" name="current_price" readonly /></label><br>
+    <label>买入价格: <input type="number"  id="purchase_price" name="purchase_price" step="0.01" /></label><br>
+    <label>数量: <input type="number" name="quantity" step="0.01" required /></label><br>
+    <label>买入日期: <input type="date" name="purchase_date" /></label><br>
+    <button type="submit">提交</button>
+  </form>
+
+  <script>
+    const apiKey = '7UW1HZ8N4JS40AB0';  // ← 替换为你的 Alpha Vantage API Key
+    const priceApi = 'https://www.alphavantage.co/query';
+    async function fetchPrice() {
+      const symbol = document.getElementById('symbol').value.trim().toUpperCase();
+      if (!symbol) return alert("请输入股票代码");
+
+      try {
+        const url = `${priceApi}?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.Note) {
+          alert("API调用频率受限，请稍后再试。");
+          return;
+        }
+
+        const timeSeries = data['Time Series (5min)'];
+        if (!timeSeries) {
+          alert("无法获取价格数据，请检查股票代码是否正确");
+          return;
+        }
+
+        // 取最近的时间点
+        const latestTime = Object.keys(timeSeries)[0];
+        const latestPrice = timeSeries[latestTime]['4. close'];
+        document.getElementById('current_price').value = parseFloat(latestPrice).toFixed(2);
+         document.getElementById('purchase_price').value = parseFloat(latestPrice).toFixed(2);
+      } catch (err) {
+        console.error(err);
+        alert("获取价格失败");
+      }
+    }
+
+    document.getElementById('asset-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form).entries());
+      await fetch('/api/assets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      alert('资产添加成功');
+      form.reset();
+    });
+  </script>
+</body>
+
+</html>
