@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asset Management System</title>
-    <link rel="stylesheet" href="./css/style1.css">
+    <link rel="stylesheet" href="./css/market.css">
 </head>
 
 <body>
@@ -16,6 +16,7 @@
         </div>
         <ul class="sidebar-menu">
             <li class="menu-item active">All Assets</li>
+            <li class="menu-item market-item">Market Data</li> <!-- 新增的Market按钮 -->
         </ul>
     </div>
 
@@ -213,6 +214,113 @@
 
 
     <script>
+
+        // Render table data
+        function renderTable(data) {
+            const tableBody = document.getElementById('asset-data');
+            tableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">No matching asset data found</td></tr>';
+                updateSummaryCards(0, 0); // Reset summary display
+                return;
+            }
+
+            let totalCost = 0;
+            let totalMarketValue = 0;
+
+            data.forEach(asset => {
+                // Convert numeric types (may be strings from database)
+                const quantity = parseFloat(asset.quantity);
+                const purchasePrice = parseFloat(asset.purchase_price);
+                const currentPrice = parseFloat(asset.current_price);
+
+                const marketValue = quantity * currentPrice;
+                const costBasis = quantity * purchasePrice;
+                const profitLoss = marketValue - costBasis;
+                const profitLossPercent = (profitLoss / costBasis * 100).toFixed(2);
+
+                // Accumulate totals
+                totalCost += costBasis;
+                totalMarketValue += marketValue;
+
+                // Get portfolio name
+                const portfolioName = portfolioMap[asset.portfolio_id] || `Portfolio ${asset.portfolio_id}`;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <!-- <td>${asset.id}</td> -->
+                    <td><span class="portfolio-badge">Portfolio ${asset.portfolio_id}</span></td>
+                    <td><span class="type-badge ${asset.type}">${asset.type}</span></td>
+                    <td>${asset.symbol}</td>
+                    <td>${asset.name}</td>
+                    <td>${quantity.toLocaleString()}</td>
+                    <td>${purchasePrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>${marketValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td class="${profitLoss > 0 ? 'profit' : profitLoss < 0 ? 'loss' : 'neutral'}">
+                        ${profitLoss > 0 ? '+' : ''}${profitLoss.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${profitLossPercent}%)
+                    </td>
+                    <td>${formatDate(asset.purchase_date)}</td>
+                    <td>${asset.currency}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-danger btn-sm sell-btn" data-id="${asset.id}">Sell</button>
+                    </td>
+                        `;
+                tableBody.appendChild(row);
+            });
+
+            // Update summary cards
+            updateSummaryCards(totalCost, totalMarketValue);
+
+            // Bind events to action buttons
+            bindActionButtons();
+        }
+
+        // Update summary cards display
+        // Update summary cards display
+        function updateSummaryCards(totalCost, totalMarketValue) {
+            const totalProfitLoss = totalMarketValue - totalCost;
+            const totalProfitLossPercent = totalCost > 0 ?
+                (totalProfitLoss / totalCost * 100).toFixed(2) : 0;
+
+            // Format currency display
+            const costDisplay = totalCost.toLocaleString(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            const marketValueDisplay = totalMarketValue.toLocaleString(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            const profitLossDisplay = totalProfitLoss.toLocaleString(undefined, {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            // Update DOM elements
+            document.getElementById('total-cost').textContent = costDisplay;
+            document.getElementById('total-market-value').textContent = marketValueDisplay;
+
+            const profitLossElement = document.getElementById('total-profit-loss');
+            profitLossElement.textContent = `${totalProfitLoss > 0 ? '+' : ''}${profitLossDisplay} (${totalProfitLossPercent}%)`;
+
+            // Set color class based on profit/loss
+            profitLossElement.className = 'summary-value';
+            if (totalProfitLoss > 0) {
+                profitLossElement.classList.add('profit');
+            } else if (totalProfitLoss < 0) {
+                profitLossElement.classList.add('loss');
+            }
+        }
 
         // 在JS部分添加以下函数
         async function sellAsset(assetId, sellData) {
@@ -728,10 +836,11 @@
                     document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
 
-                    // 根据菜单项筛选数据
                     const menuText = this.textContent.trim();
                     if (menuText === 'All Assets') {
                         fetchAssets();
+                    } else if (menuText === 'Market Data') { // 新增的跳转逻辑
+                        window.location.href = 'market.html';
                     } else if (menuText.startsWith('Portfolio')) {
                         const portfolioId = menuText.replace('Portfolio', '').trim();
                         fetchAssets({ portfolio: portfolioId });
