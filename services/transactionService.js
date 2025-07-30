@@ -32,7 +32,7 @@ const searchTransactions = async ({ asset_type, symbol, name, start_date, end_da
   }
 
   sql += ' ORDER BY trade_date DESC';
-  
+
   try {
     const [rows] = await db.query(sql, values);
     return rows;
@@ -49,17 +49,20 @@ const getAllTransactions = async () => {
 };
 
 const createTransaction = async (data) => {
-  const { asset_symbol, asset_name, action_type, quantity, price, transaction_date } = data;
-  const total_cost = quantity * price;
+  const { portfolio_id, type, asset_type, symbol, name, quantity, price, currency, trade_date, note } = data;
+
   const [result] = await db.query(
-    'INSERT INTO transaction_record (asset_symbol, asset_name, action_type, quantity, price, total_cost, transaction_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [asset_symbol, asset_name, action_type, quantity, price, total_cost, transaction_date]
+    `INSERT INTO transaction_record 
+      (portfolio_id, type, asset_type, symbol, name, quantity, price, currency, trade_date, note)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [portfolio_id, type, asset_type, symbol, name, quantity, price, currency, trade_date, note || null]
   );
+
   return result;
-};   
+};
 
 const deleteTransaction = async (id) => {
   await db.query('DELETE FROM transaction_record WHERE id = ?', [id]);
 };
 
-export { getAllTransactions, createTransaction, deleteTransaction,searchTransactions };
+export { getAllTransactions, createTransaction, deleteTransaction, searchTransactions };

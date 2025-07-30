@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资产管理系统</title>
+    <link rel="stylesheet" href="css/market.css">
+    <!-- 在 head 中加入 -->
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1"></script>
+    <script src="./API/chartjs-chart-financial.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+    <!-- 左侧菜单栏 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>资产管理</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="menu-item active">所有市场数据</li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <div class="header-actions">
+            <h1 class="page-title">市场数据列表</h1>
+
+        </div>
+
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+            <div class="search-title">搜索</div>
+            <div class="search-fields">
+                <div class="search-field">
+                    <label for="search-symbol">代码</label>
+                    <input type="text" id="search-symbol" placeholder="输入代码">
+                </div>
+                <div class="search-field">
+                    <label for="search-name">名称</label>
+                    <input type="text" id="search-name" placeholder="输入名称">
+                </div>
+                <div class="search-field">
+                    <label for="search-type">类型</label>
+                    <select id="search-type">
+                        <option value="">所有类型</option>
+                        <option value="STOCK">STOCK</option>
+                        <option value="BOND">BOND</option>
+                        <option value="ETF">ETF</option>
+                        <option value="CASH">CASH</option>
+                        <option value="OTHER">OTHER</option>
+                    </select>
+                </div>
+            </div>
+            <div class="search-actions">
+                <button class="btn btn-secondary">重置</button>
+                <button class="btn btn-primary">搜索</button>
+                <button class="add-btn" id="add-market-btn">添加</button>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>类型</th>
+                        <th>代码</th>
+                        <th>名称</th>
+                        <th>当前价格</th>
+                        <th>货币</th>
+                        <th>操作</th>
+
+                    </tr>
+                </thead>
+                <tbody id="market-data">
+                    <tr>
+                        <td colspan="13" class="loading">加载中...</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination">
+                <button>&laquo;</button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>&raquo;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加资产模态框 -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">添加数据</h3>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <form id="market-form">
+                <input type="hidden" id="market-id" name="id"> <!-- 隐藏字段用于编辑时存储ID -->
+                <div class="form-group">
+                    <label>类型: </label>
+                    <select name="type">
+                        <option>STOCK</option>
+                        <option>BOND</option>
+                        <option>ETF</option>
+                        <option>CASH</option>
+                        <option>OTHER</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>代码(symbol): </label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="symbol" name="symbol" required style="flex: 1;">
+                        <button type="button" class="btn btn-secondary" onclick="fetchPrice()">获取价格</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>名称: </label>
+                    <input type="text" name="name">
+                </div>
+                <div class="form-group">
+                    <label>当前价格: </label>
+                    <input type="text" id="current_price" name="current_price" readonly>
+                </div>
+                <div class="form-group">
+                    <label>货币: </label>
+                    <input type="text" name="currency" value="USD" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">取消</button>
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal-overlay" id="delete-confirm-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="close-btn" id="close-delete-modal">&times;</button>
+            </div>
+            <div class="confirm-modal">
+                <p class="confirm-message">您确定要删除吗？此操作无法撤销。</p>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-delete">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 买入资产模态框 -->
+    <!--  <div class="modal-overlay" id="buy-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">买入资产</h3>
+                <button class="close-btn" id="close-buy-modal">&times;</button>
+            </div>
+            <form id="buy-form">
+                <input type="hidden" id="buy-market-id" name="market_id">
+
+                <div class="asset-card">
+                    <h4>资产信息</h4>
+                    <div class="asset-details">
+                        <div>
+                            <span class="asset-label">类型</span>
+                            <span class="asset-value" id="buy-type"></span>
+                        </div>
+                        <div>
+                            <span class="asset-label">代码</span>
+                            <span class="asset-value" id="buy-symbol"></span>
+                        </div>
+                    </div>
+                    <div class="asset-details">
+                        <div>
+                            <span class="asset-label">名称</span>
+                            <span class="asset-value" id="buy-name"></span>
+                        </div>
+                        <div>
+                            <span class="asset-label">当前价格</span>
+                            <span class="asset-value" id="buy-price"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="buy-portfolio">投资组合</label>
+                    <select id="buy-portfolio" name="portfolio_id" required>
+                        <option value="">请选择投资组合</option>-->
+    <!-- 组合将通过JS动态加载 -->
+    <!--     </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="buy-quantity">购买数量</label>
+                        <input type="number" id="buy-quantity" name="quantity" min="0.0001" step="0.0001" required>
+                    </div>
+                    <div class="form-col">
+                        <label for="buy-total">总金额</label>
+                        <input type="text" id="buy-total" class="readonly-input" readonly>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="buy-date">购买日期</label>
+                    <input type="date" id="buy-date" name="purchase_date" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-buy">取消</button>
+                    <button type="submit" class="btn btn-buy" id="confirm-buy">确认买入</button>
+                </div>
+            </form>
+        </div>
+    </div>-->
+
+
+
+
+    <!-- 买入 Modal (集成K线图 + 买入操作) -->
+    <div class="modal-overlay" id="chart-modal">
+
+
+        <div class="modal" style="max-width:1200px;width:95%;">
+            <div class="modal-header">
+                <h3 class="modal-title">股票K线图</h3>
+                <button class="close-btn" id="close-chart-modal">&times;</button>
+            </div>
+            <!-- 股票基本信息 -->
+            <div class="asset-info">
+                <p><strong>类型：</strong><span id="chart-buy-type"></span></p>
+                <p><strong>代码：</strong><span id="chart-buy-symbol"></span></p>
+                <p><strong>名称：</strong><span id="chart-buy-name"></span></p>
+                <p><strong>当前价格：</strong><span id="chart-buy-price"></span></p>
+            </div>
+
+            <!-- 投资组合选择 -->
+            <div class="form-group">
+                <label for="portfolio-select">选择投资组合：</label>
+                <select id="portfolio-select"></select>
+            </div>
+
+            <!-- 数量和日期 -->
+            <div class="form-group">
+                <label for="buy-quantity">数量：</label>
+                <input type="number" id="buy-quantity" min="0.0001" step="0.0001" required>
+            </div>
+            <div class="form-group">
+                <label for="buy-date">购买日期：</label>
+                <input type="date" id="buy-date" required>
+            </div>
+
+            <!-- 确认按钮 -->
+            <div class="form-actions">
+                <button class="btn btn-primary" id="chart-confirm-buy">确认买入</button>
+            </div>
+
+            <hr />
+
+            <!-- 原 K 线图部分 -->
+            <div style="margin-top:10px;">
+                <div>
+                    Days: <input id="days" value="30" />
+                    <button id="loadData">加载K线数据</button>
+                </div>
+                <canvas id="chart" style="width:100%; height:400px;"></canvas>
+                <div style="margin-top:10px;">
+                    Bar Type:
+                    <select id="type">
+                        <option value="candlestick" selected>Candlestick</option>
+                        <option value="ohlc">OHLC</option>
+                    </select>
+                    Scale:
+                    <select id="scale-type">
+                        <option value="linear" selected>Linear</option>
+                        <option value="logarithmic">Logarithmic</option>
+                    </select>
+                    <button id="update">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // API基础地址
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        // Alpha Vantage API Key - 请替换为您自己的API密钥
+        //const apiKey = '7UW1HZ8N4JS40AB0';
+        // const priceApi = 'https://www.alphavantage.co/query';
+
+        // 存储当前操作的资产ID
+        let currentDeleteId = null;
+        let currentEditId = null;
+
+        // 渲染表格数据
+        function renderTable(data) {
+            const tableBody = document.getElementById('market-data');
+            tableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">没有找到匹配的市场数据</td></tr>';
+                return;
+            }
+
+            data.forEach(market => {
+                // 转换数值类型（从数据库获取的可能是字符串）
+
+                const currentPrice = parseFloat(market.current_price);
+
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <!-- <td>${market.id}</td> -->
+    
+                    <td><span class="type-badge ${market.type}">${market.type}</span></td>
+                    <td>${market.symbol}</td>
+                    <td>${market.name}</td>
+                    <td>${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>${market.currency}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-buy btn-sm buy-btn" data-id="${market.id}">买入</button>
+                        <button class="btn btn-danger btn-sm delete-btn" data-id="${market.id}">删除</button>
+                        
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // 为操作按钮绑定事件
+            bindActionButtons();
+        }
+
+        // 绑定编辑和删除按钮事件
+        function bindActionButtons() {
+            // 买入按钮事件
+            document.querySelectorAll('.buy-btn').forEach(button => {
+                button.addEventListener('click', async function () {
+                    const row = this.closest('tr');
+                    const type = row.querySelector('td:nth-child(1)').innerText;
+                    const symbol = row.querySelector('td:nth-child(2)').innerText;
+                    const name = row.querySelector('td:nth-child(3)').innerText;
+                    const price = row.querySelector('td:nth-child(4)').innerText;
+
+                    // 填充Modal字段
+                    document.getElementById('chart-buy-type').innerText = type;
+                    document.getElementById('chart-buy-symbol').innerText = symbol;
+                    document.getElementById('chart-buy-name').innerText = name;
+                    document.getElementById('chart-buy-price').innerText = price;
+
+                    // 打开 modal
+                    document.getElementById('chart-modal').classList.add('active');
+
+                    // 自动加载 K线数据
+                    getRealData(symbol, parseInt(document.getElementById('days').value) || 30);
+
+                    // 加载 portfolio 下拉
+                    const portfolioSelect = document.getElementById('portfolio-select');
+                    portfolioSelect.innerHTML = '<option>加载中...</option>';
+                    const res = await fetch(`${API_BASE_URL}/portfolio`);
+                    const portfolios = await res.json();
+                    portfolioSelect.innerHTML = portfolios.map(p =>
+                        `<option value="${p.id}">${p.name}</option>`
+                    ).join('');
+                });
+            });
+
+
+            // 删除按钮事件
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    currentDeleteId = this.getAttribute('data-id');
+                    document.getElementById('delete-confirm-modal').classList.add('active');
+                });
+            });
+        }
+
+
+
+        // 从API获取资产数据
+        async function fetchMarkets(filters = {}) {
+            try {
+                // 显示加载状态
+                const tableBody = document.getElementById('market-data');
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">加载中...</td></tr>';
+
+                // 构建查询参数
+                const params = new URLSearchParams();
+                Object.entries(filters).forEach(([key, value]) => {
+                    if (value) params.append(key, value);
+                });
+
+                const url = `${API_BASE_URL}/markets/all${params.toString() ? '?' + params.toString() : ''}`;
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error('获取数据失败');
+                }
+
+                const data = await response.json();
+                renderTable(data);
+            } catch (error) {
+                console.error('获取数据时出错:', error);
+                const tableBody = document.getElementById('market-data');
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">加载失败，请重试</td></tr>';
+            }
+        }
+
+
+
+        // 删除资产
+        async function deleteMarket(id) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/markets/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('删除失败');
+                }
+
+                return true;
+            } catch (error) {
+                console.error('删除时出错:', error);
+                return false;
+            }
+        }
+
+        // 获取资产价格
+        async function fetchPrice() {
+            const symbol = document.getElementById('symbol').value.trim().toUpperCase();
+            if (!symbol) return alert("请输入股票代码");
+
+            try {
+                const url = `${priceApi}?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.Note) {
+                    alert("API调用频率受限，请稍后再试。");
+                    return;
+                }
+
+                const timeSeries = data['Time Series (5min)'];
+                if (!timeSeries) {
+                    alert("无法获取价格数据，请检查股票代码是否正确");
+                    return;
+                }
+
+                // 取最近的时间点
+                const latestTime = Object.keys(timeSeries)[0];
+                const latestPrice = timeSeries[latestTime]['4. close'];
+                document.getElementById('current_price').value = parseFloat(latestPrice).toFixed(2);
+
+
+            } catch (err) {
+                console.error(err);
+                alert("获取价格失败");
+            }
+        }
+
+        // 初始化模态框
+        function initModal() {
+
+            document.getElementById('close-chart-modal').addEventListener('click', () => {
+                document.getElementById('chart-modal').classList.remove('active');
+            });
+
+            // 点击 modal 背景关闭
+            document.getElementById('chart-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('chart-modal')) {
+                    document.getElementById('chart-modal').classList.remove('active');
+                }
+            });
+
+            // 添加/编辑资产模态框
+            const addModal = document.getElementById('add-modal');
+            const addBtn = document.getElementById('add-market-btn');
+            const closeBtn = document.getElementById('close-modal');
+            const cancelBtn = document.getElementById('cancel-btn');
+
+            // 点击添加按钮
+            addBtn.addEventListener('click', () => {
+                currentEditId = null;
+                const form = document.getElementById('market-form');
+                form.reset();
+                document.getElementById('market-id').value = '';
+                addModal.classList.add('active');
+            });
+
+            // 关闭模态框
+            closeBtn.addEventListener('click', () => {
+                addModal.classList.remove('active');
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                addModal.classList.remove('active');
+            });
+
+            // 点击模态框外部关闭
+            addModal.addEventListener('click', (e) => {
+                if (e.target === addModal) {
+                    addModal.classList.remove('active');
+                }
+            });
+
+            // 删除确认模态框
+            const deleteModal = document.getElementById('delete-confirm-modal');
+            const closeDeleteBtn = document.getElementById('close-delete-modal');
+            const cancelDeleteBtn = document.getElementById('cancel-delete');
+            const confirmDeleteBtn = document.getElementById('confirm-delete');
+
+            closeDeleteBtn.addEventListener('click', () => {
+                deleteModal.classList.remove('active');
+            });
+
+            cancelDeleteBtn.addEventListener('click', () => {
+                deleteModal.classList.remove('active');
+            });
+
+            confirmDeleteBtn.addEventListener('click', async () => {
+                if (currentDeleteId) {
+                    const success = await deleteMarket(currentDeleteId);
+                    deleteModal.classList.remove('active');
+
+                    if (success) {
+                        alert('已成功删除');
+                        fetchMarkets();
+                    } else {
+                        alert('删除失败，请重试');
+                    }
+                }
+            });
+
+            // 点击模态框外部关闭
+            deleteModal.addEventListener('click', (e) => {
+                if (e.target === deleteModal) {
+                    deleteModal.classList.remove('active');
+                }
+            });
+
+
+
+        }
+
+        // 初始化表单提交
+        function initFormSubmit() {
+            document.getElementById('market-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const formData = new FormData(form);
+                // 转换为JSON
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    let success = false;
+
+                    if (currentEditId) {
+                        // 编辑模式 - 调用更新接口
+                        success = await updateMarket(currentEditId, data);
+                    } else {
+                        // 新增模式 - 调用创建接口
+                        const response = await fetch(`${API_BASE_URL}/markets`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+
+                        success = response.ok;
+                    }
+
+                    if (success) {
+                        alert(currentEditId ? '资产更新成功' : '资产添加成功');
+                        form.reset();
+                        document.getElementById('add-modal').classList.remove('active');
+
+                        // 重新加载资产列表
+                        fetchMarkets();
+                    } else {
+                        throw new Error(currentEditId ? '更新资产失败' : '保存资产失败');
+                    }
+                } catch (error) {
+                    console.error('操作资产时出错:', error);
+                    alert(currentEditId ? '更新资产失败，请重试' : '添加资产失败，请重试');
+                }
+            });
+        }
+
+        // 初始化搜索功能
+        function initSearch() {
+            document.querySelector('.btn-primary').addEventListener('click', function () {
+                const filters = {
+                    symbol: document.getElementById('search-symbol').value,
+                    name: document.getElementById('search-name').value,
+                    type: document.getElementById('search-type').value,
+                };
+
+                fetchMarkets(filters);
+            });
+
+            // 重置功能
+            document.querySelector('.btn-secondary').addEventListener('click', function () {
+                document.getElementById('search-symbol').value = '';
+                document.getElementById('search-name').value = '';
+                document.getElementById('search-type').value = '';
+                fetchMarkets();
+            });
+        }
+
+        // 初始化菜单项点击事件
+        function initMenuItems() {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // 根据菜单项筛选数据
+                    const menuText = this.textContent.trim();
+                    if (menuText === '所有资产') {
+                        fetchMarkets();
+                    } else if (menuText.startsWith('投资组合')) {
+                        const portfolioId = menuText.replace('投资组合', '').trim();
+                        fetchMarkets({ portfolio: portfolioId });
+                    }
+                });
+            });
+        }
+
+        // 初始化页面
+        function init() {
+
+            fetchMarkets();
+            initModal();
+            initFormSubmit();
+            initSearch();
+            initMenuItems();
+
+
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+        // 在 DOM 加载完成后绑定“确认买入”按钮
+        document.getElementById('chart-confirm-buy').addEventListener('click', async () => {
+            const portfolioId = document.getElementById('portfolio-select').value;
+            const type = document.getElementById('chart-buy-type').innerText;
+            const symbol = document.getElementById('chart-buy-symbol').innerText;
+            const name = document.getElementById('chart-buy-name').innerText;
+            const currentPrice = parseFloat(document.getElementById('chart-buy-price').innerText.replace(/,/g, ''));
+            const quantity = parseFloat(document.getElementById('buy-quantity').value);
+            const purchaseDate = document.getElementById('buy-date').value;
+
+            if (!portfolioId || !quantity || !purchaseDate) {
+                alert('请完整填写表单');
+                return;
+            }
+
+            /** 1️⃣ 向 asset 表插入 */
+            const assetData = {
+                portfolio_id: portfolioId,
+                type,
+                symbol,
+                name,
+                quantity,
+                purchase_price: currentPrice,
+                current_price: currentPrice,
+                purchase_date: purchaseDate,
+                currency: 'USD'
+            };
+
+            /** 2️⃣ 向 transaction_record 表插入 */
+            const transactionData = {
+                portfolio_id: portfolioId,
+                type: 'BUY',             // 固定为买入
+                asset_type: type,
+                symbol,
+                name,
+                quantity,
+                price: currentPrice,
+                currency: 'USD',
+                trade_date: purchaseDate,
+                note: 'success'
+            };
+            try {
+                // 发起 asset 表插入
+                const assetRes = await fetch(`${API_BASE_URL}/assets`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(assetData)
+                });
+
+                if (!assetRes.ok) throw new Error('asset 表插入失败');
+
+                // 发起 transaction_record 表插入
+                const txRes = await fetch(`${API_BASE_URL}/transactions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(transactionData)
+                });
+
+                if (!txRes.ok) throw new Error('transaction_record 表插入失败');
+
+                alert('买入成功，并已记录交易流水！');
+                document.getElementById('chart-modal').classList.remove('active');
+                fetchMarkets();
+            } catch (error) {
+                console.error(error);
+                alert('买入或交易记录保存失败，请重试');
+            }
+        });
+
+
+        document.getElementById('close-chart-modal').addEventListener('click', () => {
+            document.getElementById('chart-modal').classList.remove('active');
+        });
+        document.getElementById('chart-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('chart-modal')) {
+                document.getElementById('chart-modal').classList.remove('active');
+            }
+        });
+        // 页面加载完再绑定事件
+        window.addEventListener('DOMContentLoaded', () => {
+            const loadBtn = document.getElementById('loadData');
+            if (loadBtn) {
+                loadBtn.addEventListener('click', () => {
+                    const ticker = document.getElementById('chart-buy-symbol').innerText.trim();
+                    const days = parseInt(document.getElementById('days').value) || 30;
+
+                    if (!ticker) {
+                        alert('股票代码不存在，请先选择资产');
+                        return;
+                    }
+                    getRealData(ticker, days);
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
+<script src="./API/price_feed.js"></script>

@@ -16,7 +16,7 @@ let chart = new Chart(ctx, {
       data: [],
       hidden: true
     }]
-  }, 
+  },
   options: {
     responsive: true,
     scales: {
