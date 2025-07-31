@@ -1,127 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portfolio Assets</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    :root {
-      --primary-color: #4361ee;
-      --danger-color: #e63946;
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36D399',
+            danger: '#e63946',
+            neutral: '#F3F4F6',
+            dark: '#1F2937'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
     }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background: #f8f9fa;
-      color: #333;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: auto;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .header h2 {
-      font-size: 1.8rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .header .btn {
-      background: var(--primary-color);
-      color: white;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      text-decoration: none;
-      font-size: 0.95rem;
-    }
-
-    .asset-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .asset-list li {
-      background: white;
-      padding: 16px;
-      margin-bottom: 12px;
-      border-left: 4px solid var(--primary-color);
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
-
-    .positive {
-      color: #4CAF50;
-    }
-
-    .negative {
-      color: #F44336;
-    }
-
-    .charts {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 20px;
-      margin-top: 30px;
-    }
-
-    .chart-box {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .chart-box h3 {
-      margin-bottom: 10px;
-      font-size: 1.1rem;
-    }
-
-    canvas {
-      width: 100% !important;
-      height: 300px !important;
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .shadow-card {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .transition-custom {
+        transition: all 0.3s ease;
+      }
+      .asset-card-hover {
+        @apply hover:shadow-lg hover:translate-y-[-2px] transition-all duration-300;
+      }
     }
   </style>
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
-<body>
-  <div class="container">
-    <div class="header">
-      <h2><i class="fas fa-wallet"></i> Portfolio Assets</h2>
-      <a href="javascript:history.back()" class="btn"><i class="fas fa-arrow-left"></i> Back</a>
+<body class="font-inter bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section -->
+    <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-[clamp(1.5rem,3vw,2.25rem)] font-bold text-dark flex items-center">
+          <i class="fa fa-wallet text-primary mr-3"></i> Portfolio Assets
+        </h1>
+        <p class="text-gray-500 mt-1">View and analyze your portfolio holdings</p>
+      </div>
+      <a href="javascript:history.back()" class="btn px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom flex items-center shadow-md hover:shadow-lg">
+        <i class="fa fa-arrow-left mr-2"></i> Back
+      </a>
     </div>
 
-    <ul class="asset-list" id="asset-list"></ul>
+    <!-- Asset List Section -->
+    <div class="bg-white rounded-xl shadow-card p-6 mb-8 transition-custom">
+      <h2 class="text-xl font-semibold text-dark mb-6 flex items-center">
+        <i class="fa fa-list-alt text-primary mr-2"></i> Asset Holdings
+      </h2>
+      <ul class="asset-list" id="asset-list" class="space-y-4"></ul>
+    </div>
 
-    <div class="charts">
-      <div class="chart-box">
-        <h3><i class="fas fa-chart-pie"></i> Asset Allocation</h3>
-        <canvas id="asset-pie-chart"></canvas>
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow-card p-6 transition-custom hover:shadow-lg">
+        <h3 class="text-lg font-medium text-dark mb-4 flex items-center">
+          <i class="fa fa-pie-chart text-primary mr-2"></i> Asset Allocation
+        </h3>
+        <div class="h-64">
+          <canvas id="asset-pie-chart"></canvas>
+        </div>
       </div>
 
-      <div class="chart-box">
-        <h3><i class="fas fa-chart-bar"></i> Asset Value Comparison</h3>
-        <canvas id="asset-comparison-chart"></canvas>
+      <div class="bg-white rounded-xl shadow-card p-6 transition-custom hover:shadow-lg">
+        <h3 class="text-lg font-medium text-dark mb-4 flex items-center">
+          <i class="fa fa-bar-chart text-primary mr-2"></i> Asset Value Comparison
+        </h3>
+        <div class="h-64">
+          <canvas id="asset-comparison-chart"></canvas>
+        </div>
       </div>
 
-      <div class="chart-box">
-        <h3><i class="fas fa-layer-group"></i> Asset Type Breakdown</h3>
-        <canvas id="asset-type-chart"></canvas>
+      <div class="bg-white rounded-xl shadow-card p-6 transition-custom hover:shadow-lg">
+        <h3 class="text-lg font-medium text-dark mb-4 flex items-center">
+          <i class="fa fa-layer-group text-primary mr-2"></i> Asset Type Breakdown
+        </h3>
+        <div class="h-64">
+          <canvas id="asset-type-chart"></canvas>
+        </div>
       </div>
     </div>
   </div>
@@ -131,7 +104,10 @@
       const urlParams = new URLSearchParams(window.location.search);
       const portfolioId = urlParams.get('portfolio_id');
       if (!portfolioId) {
-        document.getElementById('asset-list').innerHTML = '<li>portfolio_id parameter is missing.</li>';
+        document.getElementById('asset-list').innerHTML = `
+          <li class="p-4 border border-red-200 bg-red-50 rounded-lg text-red-700">
+            <i class="fa fa-exclamation-circle mr-2"></i>portfolio_id parameter is missing.
+          </li>`;
         return;
       }
 
@@ -142,7 +118,10 @@
         renderAllCharts(assets);
       } catch (e) {
         console.error(e);
-        document.getElementById('asset-list').innerHTML = '<li>Failed to load data. Please try again.</li>';
+        document.getElementById('asset-list').innerHTML = `
+          <li class="p-4 border border-red-200 bg-red-50 rounded-lg text-red-700">
+            <i class="fa fa-exclamation-circle mr-2"></i>Failed to load data. Please try again.
+          </li>`;
       }
     }
 
@@ -157,7 +136,11 @@
     function renderAssetList(assets) {
       const list = document.getElementById('asset-list');
       if (!assets || assets.length === 0) {
-        list.innerHTML = '<li>No asset records.</li>';
+        list.innerHTML = `
+          <li class="p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+            <i class="fa fa-info-circle text-2xl mb-2"></i>
+            <p>No asset records found</p>
+          </li>`;
         return;
       }
 
@@ -166,16 +149,60 @@
         const currentValue = (asset.current_price || asset.purchase_price) * asset.quantity;
         const purchaseValue = asset.purchase_price * asset.quantity;
         const profit = currentValue - purchaseValue;
-        const profitClass = profit >= 0 ? 'positive' : 'negative';
+        const profitClass = profit >= 0 ? 'text-secondary' : 'text-danger';
+        const profitIcon = profit >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
         const profitText = profit >= 0 ? `+¥${Math.abs(profit).toLocaleString()}` : `-¥${Math.abs(profit).toLocaleString()}`;
         const ratio = (Math.abs(profit) / purchaseValue * 100).toFixed(2);
 
+        // Determine asset type icon
+        let assetIcon = 'fa-question-circle';
+        switch(asset.type) {
+          case 'STOCK': assetIcon = 'fa-line-chart'; break;
+          case 'BOND': assetIcon = 'fa-university'; break;
+          case 'ETF': assetIcon = 'fa-cubes'; break;
+          case 'CASH': assetIcon = 'fa-money'; break;
+        }
+
         const li = document.createElement('li');
+        li.className = 'border border-gray-200 rounded-xl p-5 asset-card-hover';
         li.innerHTML = `
-          <b>${asset.name}</b> (${asset.symbol}) - ${asset.type}<br>
-          Current Value: ¥${currentValue.toLocaleString()} | Cost: ¥${purchaseValue.toLocaleString()}<br>
-          P/L: <span class="${profitClass}">${profitText} (${ratio}%)</span><br>
-          Quantity: ${asset.quantity} | Purchase Date: ${formatDate(asset.purchase_date)}
+          <div class="flex flex-wrap justify-between items-start gap-4">
+            <div>
+              <div class="flex items-center">
+                <h3 class="text-lg font-semibold text-dark">${asset.name}</h3>
+                <span class="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">${asset.symbol}</span>
+              </div>
+              <p class="text-gray-500 text-sm mt-1 flex items-center">
+                <i class="fa ${assetIcon} mr-1"></i>${asset.type}
+              </p>
+            </div>
+            
+            <div class="text-right">
+              <p class="text-sm text-gray-500">Current Value</p>
+              <p class="text-lg font-semibold text-dark">¥${currentValue.toLocaleString()}</p>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-100">
+            <div>
+              <p class="text-sm text-gray-500">Cost Basis</p>
+              <p class="font-medium">¥${purchaseValue.toLocaleString()}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">P/L</p>
+              <p class="${profitClass} font-medium flex items-center justify-center">
+                <i class="fa ${profitIcon} mr-1"></i>${profitText} (${ratio}%)
+              </p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Purchase Date</p>
+              <p class="font-medium">${formatDate(asset.purchase_date)}</p>
+            </div>
+          </div>
+          
+          <div class="mt-3 pt-3 border-t border-gray-100">
+            <p class="text-sm text-gray-500">Quantity: <span class="font-medium text-dark">${asset.quantity}</span></p>
+          </div>
         `;
         list.appendChild(li);
       });
@@ -190,7 +217,10 @@
 
     function drawPieChart(assets) {
       const ctx = document.getElementById('asset-pie-chart').getContext('2d');
-      const data = assets.map(a => ({ name: a.name, value: (a.current_price || a.purchase_price) * a.quantity }));
+      const data = assets.map(a => ({ 
+        name: a.name, 
+        value: (a.current_price || a.purchase_price) * a.quantity 
+      }));
 
       new Chart(ctx, {
         type: 'pie',
@@ -198,11 +228,28 @@
           labels: data.map(d => d.name),
           datasets: [{
             data: data.map(d => d.value),
-            backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff']
+            backgroundColor: [
+              '#165DFF', '#36D399', '#FFAB00', '#F53F3F', '#722ED1',
+              '#0FC6C2', '#7BC616', '#FF7D00', '#F7BA1E', '#E53E3E'
+            ],
+            borderWidth: 0,
+            hoverOffset: 6
           }]
         },
         options: {
+          responsive: true,
+          maintainAspectRatio: false,
           plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                boxWidth: 12,
+                padding: 15,
+                font: {
+                  size: 11
+                }
+              }
+            },
             tooltip: {
               callbacks: {
                 label: ctx => {
@@ -212,6 +259,10 @@
                 }
               }
             }
+          },
+          animation: {
+            animateScale: true,
+            animateRotate: true
           }
         }
       });
@@ -228,19 +279,46 @@
         data: {
           labels,
           datasets: [
-            { label: 'Cost', data: purchase, backgroundColor: '#ff6384' },
-            { label: 'Current Value', data: current, backgroundColor: '#36a2eb' }
+            { 
+              label: 'Cost Basis', 
+              data: purchase, 
+              backgroundColor: '#E8F3FF',
+              borderColor: '#165DFF',
+              borderWidth: 1
+            },
+            { 
+              label: 'Current Value', 
+              data: current, 
+              backgroundColor: '#E6FFFA',
+              borderColor: '#36D399',
+              borderWidth: 1
+            }
           ]
         },
         options: {
+          responsive: true,
+          maintainAspectRatio: false,
           scales: {
+            x: {
+              grid: {
+                display: false
+              }
+            },
             y: {
+              beginAtZero: true,
               ticks: {
                 callback: val => '¥' + val.toLocaleString()
               }
             }
           },
           plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 12,
+                padding: 15
+              }
+            },
             tooltip: {
               callbacks: {
                 label: ctx => {
@@ -268,6 +346,15 @@
         typeTotals[type] = (typeTotals[type] || 0) + val;
       });
 
+      // Define colors for different asset types
+      const typeColors = {
+        'STOCK': '#165DFF',
+        'BOND': '#36D399',
+        'ETF': '#FFAB00',
+        'CASH': '#F53F3F',
+        'OTHER': '#722ED1'
+      };
+
       new Chart(ctx, {
         type: 'bar',
         data: {
@@ -275,18 +362,34 @@
           datasets: [{
             label: 'Asset Value',
             data: Object.values(typeTotals),
-            backgroundColor: '#36a2eb'
+            backgroundColor: Object.keys(typeTotals).map(type => typeColors[type] || '#CCCCCC'),
+            borderRadius: 6
           }]
         },
         options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
           scales: {
-            y: {
+            x: {
+              beginAtZero: true,
               ticks: {
                 callback: val => '¥' + val.toLocaleString()
+              },
+              grid: {
+                display: false
+              }
+            },
+            y: {
+              grid: {
+                display: false
               }
             }
           },
           plugins: {
+            legend: {
+              display: false
+            },
             tooltip: {
               callbacks: {
                 label: ctx => '¥' + ctx.raw.toLocaleString()
@@ -300,5 +403,4 @@
     document.addEventListener('DOMContentLoaded', loadAssets);
   </script>
 </body>
-
 </html>
