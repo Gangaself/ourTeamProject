@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Management System</title>
+    <title>Investment Management System</title>
     <link rel="stylesheet" href="css/market.css">
     <!-- 在 head 中加入 -->
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4"></script>
@@ -28,14 +28,63 @@
         .return-btn:hover {
             background-color: #5a6268;
         }
+        
+        /* 添加消息通知样式 */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 350px;
+        }
+
+        .notification {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background-color: #28a745;
+        }
+
+        .notification.error {
+            background-color: #dc3545;
+        }
+
+        .notification.warning {
+            background-color: #ffc107;
+            color: #343a40;
+        }
+
+        .notification-icon {
+            margin-right: 10px;
+            font-size: 20px;
+        }
     </style>
 </head>
 
 <body>
+    <!-- 在body开头添加通知容器 -->
+    <div class="notification-container" id="notification-container"></div>
+    
     <!-- 左侧菜单栏 -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h2>Asset Management</h2>
+            <h2>Investment Management System</h2>
         </div>
         <ul class="sidebar-menu">
             <li class="menu-item active">Market Data</li>
@@ -172,75 +221,6 @@
         </div>
     </div>
 
-    <!-- 买入资产模态框 -->
-    <!--  <div class="modal-overlay" id="buy-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Buy Asset</h3>
-                <button class="close-btn" id="close-buy-modal">&times;</button>
-            </div>
-            <form id="buy-form">
-                <input type="hidden" id="buy-market-id" name="market_id">
-
-                <div class="asset-card">
-                    <h4>Asset Information</h4>
-                    <div class="asset-details">
-                        <div>
-                            <span class="asset-label">Type</span>
-                            <span class="asset-value" id="buy-type"></span>
-                        </div>
-                        <div>
-                            <span class="asset-label">Symbol</span>
-                            <span class="asset-value" id="buy-symbol"></span>
-                        </div>
-                    </div>
-                    <div class="asset-details">
-                        <div>
-                            <span class="asset-label">Name</span>
-                            <span class="asset-value" id="buy-name"></span>
-                        </div>
-                        <div>
-                            <span class="asset-label">Current Price</span>
-                            <span class="asset-value" id="buy-price"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="buy-portfolio">Portfolio</label>
-                    <select id="buy-portfolio" name="portfolio_id" required>
-                        <option value="">Select Portfolio</option>-->
-    <!-- 组合将通过JS动态加载 -->
-    <!--     </select>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="buy-quantity">Quantity</label>
-                        <input type="number" id="buy-quantity" name="quantity" min="0.0001" step="0.0001" required>
-                    </div>
-                    <div class="form-col">
-                        <label for="buy-total">Total Amount</label>
-                        <input type="text" id="buy-total" class="readonly-input" readonly>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="buy-date">Purchase Date</label>
-                    <input type="date" id="buy-date" name="purchase_date" required>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancel-buy">Cancel</button>
-                    <button type="submit" class="btn btn-buy" id="confirm-buy">Confirm Buy</button>
-                </div>
-            </form>
-        </div>
-    </div>-->
-
-
-
-
     <!-- 买入 Modal (集成K线图 + 买入操作) -->
     <div class="modal-overlay" id="chart-modal">
 
@@ -319,6 +299,35 @@
         let currentDeleteId = null;
         let currentEditId = null;
 
+        // 创建通知函数
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            // 添加图标
+            const icon = document.createElement('span');
+            icon.className = 'notification-icon';
+            icon.innerHTML = type === 'success' ? '✓' : type === 'error' ? '✕' : '⚠';
+            notification.appendChild(icon);
+            
+            // 添加消息文本
+            const text = document.createElement('span');
+            text.textContent = message;
+            notification.appendChild(text);
+            
+            container.appendChild(notification);
+            
+            // 显示通知
+            setTimeout(() => notification.classList.add('show'), 10);
+            
+            // 5秒后移除通知
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
         // 渲染表格数据
         function renderTable(data) {
             const tableBody = document.getElementById('market-data');
@@ -383,11 +392,19 @@
                     // 加载 portfolio 下拉
                     const portfolioSelect = document.getElementById('portfolio-select');
                     portfolioSelect.innerHTML = '<option>Loading...</option>';
-                    const res = await fetch(`${API_BASE_URL}/portfolio`);
-                    const portfolios = await res.json();
-                    portfolioSelect.innerHTML = portfolios.map(p =>
-                        `<option value="${p.id}">${p.name}</option>`
-                    ).join('');
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/portfolio`);
+                        if (!res.ok) {
+                            throw new Error('Failed to load portfolios');
+                        }
+                        const portfolios = await res.json();
+                        portfolioSelect.innerHTML = portfolios.map(p =>
+                            `<option value="${p.id}">${p.name}</option>`
+                        ).join('');
+                    } catch (error) {
+                        portfolioSelect.innerHTML = '<option>Failed to load portfolios</option>';
+                        showNotification('Failed to load portfolios: ' + error.message, 'error');
+                    }
                 });
             });
 
@@ -429,6 +446,7 @@
                 console.error('Error fetching data:', error);
                 const tableBody = document.getElementById('market-data');
                 tableBody.innerHTML = '<tr><td colspan="13" class="loading">Failed to load, please try again</td></tr>';
+                showNotification('Failed to load market data: ' + error.message, 'error');
             }
         }
 
@@ -455,7 +473,10 @@
         // 获取资产价格
         async function fetchPrice() {
             const symbol = document.getElementById('symbol').value.trim().toUpperCase();
-            if (!symbol) return alert("Please enter a stock symbol");
+            if (!symbol) {
+                showNotification('Please enter a stock symbol', 'warning');
+                return;
+            }
 
             try {
                 // 直接用 price_feed.js 的 apiKey
@@ -464,13 +485,13 @@
                 const data = await res.json();
 
                 if (data.Note) {
-                    alert("API call frequency limit reached, please try again later.");
+                    showNotification("API call frequency limit reached, please try again later.", 'warning');
                     return;
                 }
 
                 const timeSeries = data['Time Series (5min)'];
                 if (!timeSeries) {
-                    alert("Unable to retrieve price data, please check if the stock symbol is correct");
+                    showNotification("Unable to retrieve price data, please check if the stock symbol is correct", 'error');
                     return;
                 }
 
@@ -478,9 +499,10 @@
                 const latestTime = Object.keys(timeSeries)[0];
                 const latestPrice = timeSeries[latestTime]['4. close'];
                 document.getElementById('current_price').value = parseFloat(latestPrice).toFixed(2);
+                showNotification(`Current price for ${symbol}: $${parseFloat(latestPrice).toFixed(2)}`, 'success');
             } catch (err) {
                 console.error(err);
-                alert("Failed to get price");
+                showNotification("Failed to get price data", 'error');
             }
         }
 
@@ -549,10 +571,10 @@
                     deleteModal.classList.remove('active');
 
                     if (success) {
-                        alert('Successfully deleted');
+                        showNotification('Market data deleted successfully', 'success');
                         fetchMarkets();
                     } else {
-                        alert('Delete failed, please try again');
+                        showNotification('Delete failed, please try again', 'error');
                     }
                 }
             });
@@ -597,18 +619,20 @@
                     }
 
                     if (success) {
-                        alert(currentEditId ? 'Asset updated successfully' : 'Asset added successfully');
+                        const message = currentEditId ? 'Market data updated successfully' : 'Market data added successfully';
+                        showNotification(message, 'success');
                         form.reset();
                         document.getElementById('add-modal').classList.remove('active');
 
                         // 重新加载资产列表
                         fetchMarkets();
                     } else {
-                        throw new Error(currentEditId ? 'Failed to update asset' : 'Failed to save asset');
+                        throw new Error(currentEditId ? 'Failed to update market data' : 'Failed to save market data');
                     }
                 } catch (error) {
-                    console.error('Asset operation error:', error);
-                    alert(currentEditId ? 'Failed to update asset, please try again' : 'Failed to add asset, please try again');
+                    console.error('Market data operation error:', error);
+                    const message = currentEditId ? 'Failed to update market data' : 'Failed to add market data';
+                    showNotification(message + ', please try again', 'error');
                 }
             });
         }
@@ -680,8 +704,18 @@
             const quantity = parseFloat(document.getElementById('buy-quantity').value);
             const purchaseDate = document.getElementById('buy-date').value;
 
-            if (!portfolioId || !quantity || !purchaseDate) {
-                alert('Please fill in the form completely');
+            if (!portfolioId) {
+                showNotification('Please select a portfolio', 'warning');
+                return;
+            }
+            
+            if (!quantity || quantity <= 0) {
+                showNotification('Please enter a valid quantity', 'warning');
+                return;
+            }
+            
+            if (!purchaseDate) {
+                showNotification('Please select a purchase date', 'warning');
                 return;
             }
 
@@ -719,7 +753,10 @@
                     body: JSON.stringify(assetData)
                 });
 
-                if (!assetRes.ok) throw new Error('Failed to insert into asset table');
+                if (!assetRes.ok) {
+                    const errorData = await assetRes.json();
+                    throw new Error('Failed to insert into asset table: ' + (errorData.message || assetRes.statusText));
+                }
 
                 // 发起 transaction_record 表插入
                 const txRes = await fetch(`${API_BASE_URL}/transactions`, {
@@ -728,14 +765,17 @@
                     body: JSON.stringify(transactionData)
                 });
 
-                if (!txRes.ok) throw new Error('Failed to insert into transaction_record table');
+                if (!txRes.ok) {
+                    const errorData = await txRes.json();
+                    throw new Error('Failed to insert into transaction_record table: ' + (errorData.message || txRes.statusText));
+                }
 
-                alert('Buy successful, transaction recorded!');
+                showNotification('Buy successful, transaction recorded!', 'success');
                 document.getElementById('chart-modal').classList.remove('active');
                 fetchMarkets();
             } catch (error) {
                 console.error(error);
-                alert('Failed to save buy or transaction, please try again');
+                showNotification('Failed to complete transaction: ' + error.message, 'error');
             }
         });
 
@@ -757,7 +797,7 @@
                     const days = parseInt(document.getElementById('days').value) || 30;
 
                     if (!ticker) {
-                        alert('Symbol not found, please select an asset first');
+                        showNotification('Symbol not found, please select an asset first', 'warning');
                         return;
                     }
                     getRealData(ticker, days);
