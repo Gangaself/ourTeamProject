@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Transaction Records Query</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <style>
+    /* 添加返回按钮样式 */
+    .return-btn {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+      transition: background-color 0.3s;
+      margin-bottom: 20px;
+    }
+
+    .return-btn:hover {
+      background-color: #5a6268;
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36D399',
+            neutral: '#F3F4F6',
+            dark: '#1F2937'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .shadow-card {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+      .transition-custom {
+        transition: all 0.3s ease;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 添加返回按钮 -->
+    <button class="return-btn" id="return-btn">
+      <i class="fa fa-arrow-left"></i> Back to Assets
+    </button>
+    <!-- Page Title -->
+    <div class="mb-8">
+      <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-dark mb-2">Asset Transaction Records Query</h1>
+      <p class="text-gray-500">Filter transaction records by criteria and view detailed transaction history</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="bg-white rounded-xl shadow-card p-6 mb-8 transition-custom hover:shadow-lg">
+      <form id="searchForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="space-y-2">
+          <label for="asset_type" class="block text-sm font-medium text-gray-700">Asset Type</label>
+          <select id="asset_type" name="asset_type"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
+            <option value="">All</option>
+            <option value="STOCK">Stock</option>
+            <option value="BOND">Bond</option>
+            <option value="ETF">ETF</option>
+            <option value="CASH">Cash</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+
+        <div class="space-y-2">
+          <label for="symbol" class="block text-sm font-medium text-gray-700">Asset Symbol</label>
+          <input type="text" id="symbol" name="symbol"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom"
+            placeholder="Enter asset symbol">
+        </div>
+
+        <div class="space-y-2">
+          <label for="name" class="block text-sm font-medium text-gray-700">Asset Name</label>
+          <input type="text" id="name" name="name"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom"
+            placeholder="Enter asset name">
+        </div>
+
+        <div class="space-y-2 lg:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Transaction Date Range</label>
+          <div class="flex space-x-2">
+            <input type="date" id="start_date" name="start_date"
+              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
+            <span class="flex items-center text-gray-500">to</span>
+            <input type="date" id="end_date" name="end_date"
+              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 flex justify-end space-x-3">
+          <button type="button" id="resetBtn"
+            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-custom flex items-center">
+            <i class="fa fa-refresh mr-2"></i> Reset
+          </button>
+          <button type="submit"
+            class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-custom flex items-center shadow-md hover:shadow-lg">
+            <i class="fa fa-search mr-2"></i> Search
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="flex flex-wrap gap-4 mb-8">
+      <div class="bg-white rounded-xl p-4 shadow-card flex-1 min-w-[200px] transition-custom hover:shadow-lg">
+        <div class="flex items-center">
+          <div class="p-3 bg-blue-100 rounded-lg mr-4">
+            <i class="fa fa-exchange text-primary text-xl"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Total Transactions</p>
+            <p id="totalCount" class="text-2xl font-bold text-dark">0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-4 shadow-card flex-1 min-w-[200px] transition-custom hover:shadow-lg">
+        <div class="flex items-center">
+          <div class="p-3 bg-green-100 rounded-lg mr-4">
+            <i class="fa fa-arrow-up text-secondary text-xl"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Total Buy Amount</p>
+            <p id="buyTotal" class="text-2xl font-bold text-dark">$0.00</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl p-4 shadow-card flex-1 min-w-[200px] transition-custom hover:shadow-lg">
+        <div class="flex items-center">
+          <div class="p-3 bg-red-100 rounded-lg mr-4">
+            <i class="fa fa-arrow-down text-red-500 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Total Sell Amount</p>
+            <p id="sellTotal" class="text-2xl font-bold text-dark">$0.00</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="bg-white rounded-xl shadow-card overflow-hidden transition-custom hover:shadow-lg">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction Type</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Type</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Symbol</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Name</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+            </tr>
+          </thead>
+          <tbody id="transactionTableBody" class="bg-white divide-y divide-gray-200">
+            <!-- Table content will be dynamically generated by JavaScript -->
+            <tr class="text-center">
+              <td colspan="9" class="px-6 py-12 text-gray-500">
+                <div class="flex flex-col items-center">
+                  <i class="fa fa-search text-4xl mb-4 text-gray-300"></i>
+                  <p>Please enter search criteria and click the "Search" button</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div class="flex-1 flex justify-between sm:hidden">
+          <button
+            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            Previous
+          </button>
+          <button
+            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            Next
+          </button>
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm text-gray-700">
+              Showing <span class="font-medium" id="pageRange">0-0</span> of <span class="font-medium" id="totalItems">0</span> records
+            </p>
+          </div>
+          <div>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <button id="prevPage"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Previous</span>
+                <i class="fa fa-chevron-left"></i>
+              </button>
+              <button id="nextPage"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                <span class="sr-only">Next</span>
+                <i class="fa fa-chevron-right"></i>
+              </button>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    const API_BASE_URL = 'http://localhost:3000/api/transactions'; // Update with your actual backend API address
+    let currentPage = 1;
+    const pageSize = 10;
+    
+    // DOM elements
+    const searchForm = document.getElementById('searchForm');
+    const resetBtn = document.getElementById('resetBtn');
+    const transactionTableBody = document.getElementById('transactionTableBody');
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const totalCountEl = document.getElementById('totalCount');
+    const buyTotalEl = document.getElementById('buyTotal');
+    const sellTotalEl = document.getElementById('sellTotal');
+    const pageRangeEl = document.getElementById('pageRange');
+    const totalItemsEl = document.getElementById('totalItems');
+    
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set default values for date controls
+      const today = new Date();
+      const startDate = new Date();
+      startDate.setMonth(today.getMonth() - 1);
+      
+      document.getElementById('start_date').valueAsDate = startDate;
+      document.getElementById('end_date').valueAsDate = today;
+      
+      // Bind event handlers
+      searchForm.addEventListener('submit', handleSearch);
+      resetBtn.addEventListener('click', resetForm);
+      prevPageBtn.addEventListener('click', goToPrevPage);
+      nextPageBtn.addEventListener('click', goToNextPage);
+
+      // 添加返回按钮事件
+      document.getElementById('return-btn').addEventListener('click', function() {
+        window.location.href = 'asset.html'; // 返回到资产页面
+      });
+    });
+    
+    // Handle search request
+    async function handleSearch(e) {
+      e.preventDefault();
+      currentPage = 1; // Reset to first page
+      await fetchTransactions();
+    }
+    
+    // Reset form
+    function resetForm() {
+      searchForm.reset();
+      // Restore default dates
+      const today = new Date();
+      const startDate = new Date();
+      startDate.setMonth(today.getMonth() - 1);
+      
+      document.getElementById('start_date').valueAsDate = startDate;
+      document.getElementById('end_date').valueAsDate = today;
+    }
+    
+    // Fetch transaction records
+    async function fetchTransactions() {
+      // Show loading state
+      transactionTableBody.innerHTML = `
+        <tr class="text-center">
+          <td colspan="9" class="px-6 py-12 text-gray-500">
+            <div class="flex flex-col items-center">
+              <i class="fa fa-spinner fa-spin text-4xl mb-4 text-gray-300"></i>
+              <p>Loading data...</p>
+            </div>
+          </td>
+        </tr>
+      `;
+      
+      // Build query parameters
+      const formData = new FormData(searchForm);
+      const queryParams = new URLSearchParams();
+      
+      formData.forEach((value, key) => {
+        if (value) queryParams.append(key, value);
+      });
+      
+      // Add pagination parameters
+      queryParams.append('page', currentPage);
+      queryParams.append('pageSize', pageSize);
+      
+      try {
+        // Send request
+        const response = await fetch(`${API_BASE_URL}/search?${queryParams}`);
+        
+        // Handle error responses
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Search failed. Please try again.');
+        }
+        
+        const data = await response.json();
+        
+        // Update table content
+        renderTransactions(data);
+        
+        // Update statistics
+        updateStatistics(data);
+        
+        // Update pagination controls
+        updatePagination(data);
+        
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+        transactionTableBody.innerHTML = `
+          <tr class="text-center">
+            <td colspan="9" class="px-6 py-12 text-red-500">
+              <div class="flex flex-col items-center">
+                <i class="fa fa-exclamation-triangle text-4xl mb-4 text-red-300"></i>
+                <p>${error.message}</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+    }
+    
+    // Render transaction records table
+    function renderTransactions(data) {
+      if (data.length === 0) {
+        transactionTableBody.innerHTML = `
+          <tr class="text-center">
+            <td colspan="9" class="px-6 py-12 text-gray-500">
+              <div class="flex flex-col items-center">
+                <i class="fa fa-search text-4xl mb-4 text-gray-300"></i>
+                <p>No transaction records found matching the criteria</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      let tableHTML = '';
+      
+      data.forEach(transaction => {
+        // Set different styles based on transaction type
+        let typeClass = '';
+        let typeIcon = '';
+        
+        switch(transaction.type) {
+          case 'BUY':
+            typeClass = 'bg-green-100 text-green-800';
+            typeIcon = 'fa-arrow-up';
+            break;
+          case 'SELL':
+            typeClass = 'bg-red-100 text-red-800';
+            typeIcon = 'fa-arrow-down';
+            break;
+          case 'DIVIDEND':
+            typeClass = 'bg-blue-100 text-blue-800';
+            typeIcon = 'fa-money';
+            break;
+          case 'TRANSFER_IN':
+            typeClass = 'bg-purple-100 text-purple-800';
+            typeIcon = 'fa-sign-in';
+            break;
+          case 'TRANSFER_OUT':
+            typeClass = 'bg-orange-100 text-orange-800';
+            typeIcon = 'fa-sign-out';
+            break;
+        }
+        
+        // Set icons based on asset type
+        let assetIcon = '';
+        switch(transaction.asset_type) {
+          case 'STOCK':
+            assetIcon = 'fa-line-chart';
+            break;
+          case 'BOND':
+            assetIcon = 'fa-university';
+            break;
+          case 'ETF':
+            assetIcon = 'fa-cubes';
+            break;
+          case 'CASH':
+            assetIcon = 'fa-money';
+            break;
+          case 'OTHER':
+            assetIcon = 'fa-question-circle';
+            break;
+        }
+        
+        // Format date
+        const formattedDate = formatDate(transaction.trade_date);
+        
+        tableHTML += `
+          <tr class="hover:bg-gray-50 transition-custom">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${typeClass}">
+                <i class="fa ${typeIcon} mr-1"></i> ${transaction.type}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <i class="fa ${assetIcon} text-gray-500 mr-2"></i>${transaction.asset_type}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${transaction.symbol}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${transaction.name}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.quantity.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4})}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${transaction.type === 'BUY' || transaction.type === 'TRANSFER_OUT' ? 'text-red-500' : 'text-green-500'}">
+              ${transaction.currency} ${Math.abs(transaction.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedDate}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${transaction.note || '-'}</td>
+          </tr>
+        `;
+      });
+      
+      transactionTableBody.innerHTML = tableHTML;
+    }
+    
+    // Format date function
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      
+      // If date is already in YYYY-MM-DD format, return it directly
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        return dateString;
+      }
+      
+      // Otherwise, try to parse
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return dateString; // Unable to parse, return original string
+      }
+      
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}`;
+    }
+    
+    // Update statistics
+    function updateStatistics(data) {
+      // Calculate total transactions
+      totalCountEl.textContent = data.length;
+      
+      // Calculate total buy and sell amounts
+      let buyTotal = 0;
+      let sellTotal = 0;
+      
+      data.forEach(transaction => {
+        // Ensure amount is converted to number type
+        const amount = parseFloat(transaction.amount);
+        
+        if (transaction.type === 'BUY' || transaction.type === 'TRANSFER_OUT') {
+          buyTotal += amount;
+        } else if (transaction.type === 'SELL' || transaction.type === 'DIVIDEND' || transaction.type === 'TRANSFER_IN') {
+          sellTotal += amount;
+        }
+      });
+      
+      // Format and display results
+      buyTotalEl.textContent = `$${buyTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      sellTotalEl.textContent = `$${sellTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      
+      // Update pagination range
+      const start = (currentPage - 1) * pageSize + 1;
+      const end = Math.min(currentPage * pageSize, data.length);
+      
+      pageRangeEl.textContent = `${start}-${end}`;
+      totalItemsEl.textContent = data.length;
+    }
+    
+    // Update pagination controls
+    function updatePagination(data) {
+      // Simplified implementation, actual project may need more sophisticated pagination logic
+      prevPageBtn.disabled = currentPage <= 1;
+      prevPageBtn.classList.toggle('opacity-50', currentPage <= 1);
+      
+      nextPageBtn.disabled = data.length < pageSize;
+      nextPageBtn.classList.toggle('opacity-50', data.length < pageSize);
+    }
+    
+    // Go to previous page
+    function goToPrevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        fetchTransactions();
+      }
+    }
+    
+    // Go to next page
+    function goToNextPage() {
+      // Simplified handling, actual project may need to determine based on total pages
+      if (document.querySelectorAll('#transactionTableBody tr').length >= pageSize) {
+        currentPage++;
+        fetchTransactions();
+      }
+    }
+  </script>
+</body>
+</html>
