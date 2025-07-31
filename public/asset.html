@@ -624,7 +624,7 @@
                         document.getElementById('sell-modal').classList.add('active');
                     } catch (error) {
                         console.error('Failed to get asset details:', error);
-                        alert('Failed to get asset details, please try again');
+                        showNotification('Failed to get asset details, please try again', 'error');
                     }
                 });
             });
@@ -665,7 +665,7 @@
                 document.getElementById('add-modal').classList.add('active');
             } catch (error) {
                 console.error('Failed to load asset data:', error);
-                alert('Failed to load asset data, please try again');
+                showNotification('Failed to load asset data, please try again', 'error');
             }
         }
 
@@ -764,7 +764,10 @@
         // 获取资产价格
         async function fetchPrice() {
             const symbol = document.getElementById('symbol').value.trim().toUpperCase();
-            if (!symbol) return alert("Please enter stock symbol");
+            if (!symbol) {
+                showNotification('Please enter a stock symbol', 'warning');
+                return;
+            }
 
             try {
                 const url = `${priceApi}?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${apiKey}`;
@@ -772,13 +775,13 @@
                 const data = await res.json();
 
                 if (data.Note) {
-                    alert("API rate limit exceeded, please try again later.");
+                    showNotification("API rate limit exceeded, please try again later.", 'warning');
                     return;
                 }
 
                 const timeSeries = data['Time Series (5min)'];
                 if (!timeSeries) {
-                    alert("Unable to get price data, please check stock symbol");
+                    showNotification("Unable to get price data, please check stock symbol", 'error');
                     return;
                 }
 
@@ -791,9 +794,10 @@
                 if (!currentEditId && !document.getElementById('purchase_price').value) {
                     document.getElementById('purchase_price').value = parseFloat(latestPrice).toFixed(2);
                 }
+                showNotification(`Current price for ${symbol}: $${parseFloat(latestPrice).toFixed(2)}`, 'success');
             } catch (err) {
                 console.error(err);
-                alert("Failed to get price");
+                showNotification("Failed to get price data", 'error');
             }
         }
 
@@ -907,7 +911,10 @@
                     }
                 } catch (error) {
                     console.error('Error operating asset:', error);
-                    alert(currentEditId ? 'Failed to update asset, please try again' : 'Failed to add asset, please try again');
+                    const message = currentEditId ? 
+                        'Failed to update asset, please try again' : 
+                        'Failed to add asset, please try again';
+                    showNotification(message, 'error');
                 }
             });
         }
