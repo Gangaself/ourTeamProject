@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Management System</title>
+    <title>资产管理系统</title>
     <link rel="stylesheet" href="css/market.css">
     <!-- 在 head 中加入 -->
     <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4"></script>
@@ -35,10 +35,10 @@
     <!-- 左侧菜单栏 -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h2>Asset Management</h2>
+            <h2>资产管理</h2>
         </div>
         <ul class="sidebar-menu">
-            <li class="menu-item active">Market Data</li>
+            <li class="menu-item active">所有市场数据</li>
         </ul>
     </div>
 
@@ -46,26 +46,26 @@
     <div class="main-content">
         <div class="header-actions">
             <button class="return-btn" id="return-btn">Back to Assets</button> <!-- 新增返回按钮 -->
-            <h1 class="page-title">Market Data List</h1>
+            <h1 class="page-title">市场数据列表</h1>
 
         </div>
 
         <!-- 搜索栏 -->
         <div class="search-bar">
-            <div class="search-title">Search</div>
+            <div class="search-title">搜索</div>
             <div class="search-fields">
                 <div class="search-field">
-                    <label for="search-symbol">Symbol</label>
-                    <input type="text" id="search-symbol" placeholder="Enter symbol">
+                    <label for="search-symbol">代码</label>
+                    <input type="text" id="search-symbol" placeholder="输入代码">
                 </div>
                 <div class="search-field">
-                    <label for="search-name">Name</label>
-                    <input type="text" id="search-name" placeholder="Enter name">
+                    <label for="search-name">名称</label>
+                    <input type="text" id="search-name" placeholder="输入名称">
                 </div>
                 <div class="search-field">
-                    <label for="search-type">Type</label>
+                    <label for="search-type">类型</label>
                     <select id="search-type">
-                        <option value="">All Types</option>
+                        <option value="">所有类型</option>
                         <option value="STOCK">STOCK</option>
                         <option value="BOND">BOND</option>
                         <option value="ETF">ETF</option>
@@ -75,9 +75,9 @@
                 </div>
             </div>
             <div class="search-actions">
-                <button class="btn btn-secondary">Reset</button>
-                <button class="btn btn-primary">Search</button>
-                <button class="add-btn" id="add-market-btn">Add</button>
+                <button class="btn btn-secondary">重置</button>
+                <button class="btn btn-primary">搜索</button>
+                <button class="add-btn" id="add-market-btn">添加</button>
             </div>
         </div>
 
@@ -86,18 +86,18 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Type</th>
-                        <th>Symbol</th>
-                        <th>Name</th>
-                        <th>Current Price</th>
-                        <th>Currency</th>
-                        <th>Actions</th>
+                        <th>类型</th>
+                        <th>代码</th>
+                        <th>名称</th>
+                        <th>当前价格</th>
+                        <th>货币</th>
+                        <th>操作</th>
 
                     </tr>
                 </thead>
                 <tbody id="market-data">
                     <tr>
-                        <td colspan="13" class="loading">Loading...</td>
+                        <td colspan="13" class="loading">加载中...</td>
                     </tr>
                 </tbody>
             </table>
@@ -159,14 +159,14 @@
     <div class="modal-overlay" id="delete-confirm-modal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">Confirm Deletion</h3>
+                <h3 class="modal-title">确认删除</h3>
                 <button class="close-btn" id="close-delete-modal">&times;</button>
             </div>
             <div class="confirm-modal">
-                <p class="confirm-message">Are you sure you want to delete? This action cannot be undone.</p>
+                <p class="confirm-message">您确定要删除吗？此操作无法撤销。</p>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancel-delete">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirm-delete">Confirm Delete</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-delete">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete">确认删除</button>
                 </div>
             </div>
         </div>
@@ -176,63 +176,63 @@
     <!--  <div class="modal-overlay" id="buy-modal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">Buy Asset</h3>
+                <h3 class="modal-title">买入资产</h3>
                 <button class="close-btn" id="close-buy-modal">&times;</button>
             </div>
             <form id="buy-form">
                 <input type="hidden" id="buy-market-id" name="market_id">
 
                 <div class="asset-card">
-                    <h4>Asset Information</h4>
+                    <h4>资产信息</h4>
                     <div class="asset-details">
                         <div>
-                            <span class="asset-label">Type</span>
+                            <span class="asset-label">类型</span>
                             <span class="asset-value" id="buy-type"></span>
                         </div>
                         <div>
-                            <span class="asset-label">Symbol</span>
+                            <span class="asset-label">代码</span>
                             <span class="asset-value" id="buy-symbol"></span>
                         </div>
                     </div>
                     <div class="asset-details">
                         <div>
-                            <span class="asset-label">Name</span>
+                            <span class="asset-label">名称</span>
                             <span class="asset-value" id="buy-name"></span>
                         </div>
                         <div>
-                            <span class="asset-label">Current Price</span>
+                            <span class="asset-label">当前价格</span>
                             <span class="asset-value" id="buy-price"></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="buy-portfolio">Portfolio</label>
+                    <label for="buy-portfolio">投资组合</label>
                     <select id="buy-portfolio" name="portfolio_id" required>
-                        <option value="">Select Portfolio</option>-->
+                        <option value="">请选择投资组合</option>-->
     <!-- 组合将通过JS动态加载 -->
     <!--     </select>
                 </div>
 
                 <div class="form-row">
                     <div class="form-col">
-                        <label for="buy-quantity">Quantity</label>
+                        <label for="buy-quantity">购买数量</label>
                         <input type="number" id="buy-quantity" name="quantity" min="0.0001" step="0.0001" required>
                     </div>
                     <div class="form-col">
-                        <label for="buy-total">Total Amount</label>
+                        <label for="buy-total">总金额</label>
                         <input type="text" id="buy-total" class="readonly-input" readonly>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="buy-date">Purchase Date</label>
+                    <label for="buy-date">购买日期</label>
                     <input type="date" id="buy-date" name="purchase_date" required>
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="cancel-buy">Cancel</button>
-                    <button type="submit" class="btn btn-buy" id="confirm-buy">Confirm Buy</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-buy">取消</button>
+                    <button type="submit" class="btn btn-buy" id="confirm-buy">确认买入</button>
                 </div>
             </form>
         </div>
@@ -247,36 +247,36 @@
 
         <div class="modal" style="max-width:1200px;width:95%;">
             <div class="modal-header">
-                <h3 class="modal-title">Stock Chart</h3>
+                <h3 class="modal-title">股票K线图</h3>
                 <button class="close-btn" id="close-chart-modal">&times;</button>
             </div>
             <!-- 股票基本信息 -->
             <div class="asset-info">
-                <p><strong>Type: </strong><span id="chart-buy-type"></span></p>
-                <p><strong>Symbol: </strong><span id="chart-buy-symbol"></span></p>
-                <p><strong>Name: </strong><span id="chart-buy-name"></span></p>
-                <p><strong>Current Price: </strong><span id="chart-buy-price"></span></p>
+                <p><strong>类型：</strong><span id="chart-buy-type"></span></p>
+                <p><strong>代码：</strong><span id="chart-buy-symbol"></span></p>
+                <p><strong>名称：</strong><span id="chart-buy-name"></span></p>
+                <p><strong>当前价格：</strong><span id="chart-buy-price"></span></p>
             </div>
 
             <!-- 投资组合选择 -->
             <div class="form-group">
-                <label for="portfolio-select">Select Portfolio: </label>
+                <label for="portfolio-select">选择投资组合：</label>
                 <select id="portfolio-select"></select>
             </div>
 
             <!-- 数量和日期 -->
             <div class="form-group">
-                <label for="buy-quantity">Quantity: </label>
+                <label for="buy-quantity">数量：</label>
                 <input type="number" id="buy-quantity" min="0.0001" step="0.0001" required>
             </div>
             <div class="form-group">
-                <label for="buy-date">Purchase Date: </label>
+                <label for="buy-date">购买日期：</label>
                 <input type="date" id="buy-date" required>
             </div>
 
             <!-- 确认按钮 -->
             <div class="form-actions">
-                <button class="btn btn-primary" id="chart-confirm-buy">Confirm Buy</button>
+                <button class="btn btn-primary" id="chart-confirm-buy">确认买入</button>
             </div>
 
             <hr />
@@ -285,7 +285,7 @@
             <div style="margin-top:10px;">
                 <div>
                     Days: <input id="days" value="30" />
-                    <button id="loadData">Load Chart Data</button>
+                    <button id="loadData">加载K线数据</button>
                 </div>
                 <canvas id="chart" style="width:100%; height:400px;"></canvas>
                 <div style="margin-top:10px;">
@@ -325,7 +325,7 @@
             tableBody.innerHTML = '';
 
             if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="13" class="loading">No matching market data found</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">没有找到匹配的市场数据</td></tr>';
                 return;
             }
 
@@ -345,8 +345,8 @@
                     <td>${currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     <td>${market.currency}</td>
                     <td class="action-buttons">
-                        <button class="btn btn-buy btn-sm buy-btn" data-id="${market.id}">Buy</button>
-                        <button class="btn btn-danger btn-sm delete-btn" data-id="${market.id}">Delete</button>
+                        <button class="btn btn-buy btn-sm buy-btn" data-id="${market.id}">买入</button>
+                        <button class="btn btn-danger btn-sm delete-btn" data-id="${market.id}">删除</button>
                         
                     </td>
                 `;
@@ -382,7 +382,7 @@
 
                     // 加载 portfolio 下拉
                     const portfolioSelect = document.getElementById('portfolio-select');
-                    portfolioSelect.innerHTML = '<option>Loading...</option>';
+                    portfolioSelect.innerHTML = '<option>加载中...</option>';
                     const res = await fetch(`${API_BASE_URL}/portfolio`);
                     const portfolios = await res.json();
                     portfolioSelect.innerHTML = portfolios.map(p =>
@@ -408,7 +408,7 @@
             try {
                 // 显示加载状态
                 const tableBody = document.getElementById('market-data');
-                tableBody.innerHTML = '<tr><td colspan="13" class="loading">Loading...</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">加载中...</td></tr>';
 
                 // 构建查询参数
                 const params = new URLSearchParams();
@@ -420,15 +420,15 @@
                 const response = await fetch(url);
 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch data');
+                    throw new Error('获取数据失败');
                 }
 
                 const data = await response.json();
                 renderTable(data);
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('获取数据时出错:', error);
                 const tableBody = document.getElementById('market-data');
-                tableBody.innerHTML = '<tr><td colspan="13" class="loading">Failed to load, please try again</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="13" class="loading">加载失败，请重试</td></tr>';
             }
         }
 
@@ -442,12 +442,12 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Delete failed');
+                    throw new Error('删除失败');
                 }
 
                 return true;
             } catch (error) {
-                console.error('Delete error:', error);
+                console.error('删除时出错:', error);
                 return false;
             }
         }
@@ -549,10 +549,10 @@
                     deleteModal.classList.remove('active');
 
                     if (success) {
-                        alert('Successfully deleted');
+                        alert('已成功删除');
                         fetchMarkets();
                     } else {
-                        alert('Delete failed, please try again');
+                        alert('删除失败，请重试');
                     }
                 }
             });
@@ -597,18 +597,18 @@
                     }
 
                     if (success) {
-                        alert(currentEditId ? 'Asset updated successfully' : 'Asset added successfully');
+                        alert(currentEditId ? '资产更新成功' : '资产添加成功');
                         form.reset();
                         document.getElementById('add-modal').classList.remove('active');
 
                         // 重新加载资产列表
                         fetchMarkets();
                     } else {
-                        throw new Error(currentEditId ? 'Failed to update asset' : 'Failed to save asset');
+                        throw new Error(currentEditId ? '更新资产失败' : '保存资产失败');
                     }
                 } catch (error) {
-                    console.error('Asset operation error:', error);
-                    alert(currentEditId ? 'Failed to update asset, please try again' : 'Failed to add asset, please try again');
+                    console.error('操作资产时出错:', error);
+                    alert(currentEditId ? '更新资产失败，请重试' : '添加资产失败，请重试');
                 }
             });
         }
@@ -643,10 +643,10 @@
 
                     // 根据菜单项筛选数据
                     const menuText = this.textContent.trim();
-                    if (menuText === 'All Assets') {
+                    if (menuText === '所有资产') {
                         fetchMarkets();
-                    } else if (menuText.startsWith('Portfolio')) {
-                        const portfolioId = menuText.replace('Portfolio', '').trim();
+                    } else if (menuText.startsWith('投资组合')) {
+                        const portfolioId = menuText.replace('投资组合', '').trim();
                         fetchMarkets({ portfolio: portfolioId });
                     }
                 });
@@ -681,7 +681,7 @@
             const purchaseDate = document.getElementById('buy-date').value;
 
             if (!portfolioId || !quantity || !purchaseDate) {
-                alert('Please fill in the form completely');
+                alert('请完整填写表单');
                 return;
             }
 
@@ -719,7 +719,7 @@
                     body: JSON.stringify(assetData)
                 });
 
-                if (!assetRes.ok) throw new Error('Failed to insert into asset table');
+                if (!assetRes.ok) throw new Error('asset 表插入失败');
 
                 // 发起 transaction_record 表插入
                 const txRes = await fetch(`${API_BASE_URL}/transactions`, {
@@ -728,14 +728,14 @@
                     body: JSON.stringify(transactionData)
                 });
 
-                if (!txRes.ok) throw new Error('Failed to insert into transaction_record table');
+                if (!txRes.ok) throw new Error('transaction_record 表插入失败');
 
-                alert('Buy successful, transaction recorded!');
+                alert('买入成功，并已记录交易流水！');
                 document.getElementById('chart-modal').classList.remove('active');
                 fetchMarkets();
             } catch (error) {
                 console.error(error);
-                alert('Failed to save buy or transaction, please try again');
+                alert('买入或交易记录保存失败，请重试');
             }
         });
 
@@ -757,7 +757,7 @@
                     const days = parseInt(document.getElementById('days').value) || 30;
 
                     if (!ticker) {
-                        alert('Symbol not found, please select an asset first');
+                        alert('股票代码不存在，请先选择资产');
                         return;
                     }
                     getRealData(ticker, days);
